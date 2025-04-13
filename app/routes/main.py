@@ -91,7 +91,10 @@ def create_need():
             creator=current_user
         )
         
-        # Handle image upload if implemented
+        # Handle image upload
+        if form.image.data:
+            image_filename = save_need_image(form.image.data)
+            need.image_url = image_filename
         
         db.session.add(need)
         db.session.commit()
@@ -159,6 +162,24 @@ def save_picture(form_picture):
     
     # Resize image
     output_size = (150, 150)
+    i = Image.open(form_picture)
+    i.thumbnail(output_size)
+    i.save(picture_path)
+    
+    return picture_fn
+
+def save_need_image(form_picture):
+    """Save uploaded need images"""
+    random_hex = secrets.token_hex(8)
+    _, f_ext = os.path.splitext(form_picture.filename)
+    picture_fn = random_hex + f_ext
+    picture_path = os.path.join(current_app.root_path, 'static/need_images', picture_fn)
+    
+    # Create directory if it doesn't exist
+    os.makedirs(os.path.dirname(picture_path), exist_ok=True)
+    
+    # Save the uploaded image with a reasonable size
+    output_size = (800, 600)
     i = Image.open(form_picture)
     i.thumbnail(output_size)
     i.save(picture_path)

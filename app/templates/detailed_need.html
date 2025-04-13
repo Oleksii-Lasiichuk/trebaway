@@ -7,19 +7,22 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
     <div class="navbar">
-        <a href="{{ url_for('main.create_need') }}" class="cta-button">Зробити запит</a>
         <div class="nav-links">
-            <a href="#" class="nav-link">Про нас</a>
+            <a href="{{ url_for('main.about') }}" class="nav-link">Про нас</a>
             <a href="{{ url_for('main.index') }}" class="nav-link">Головна</a>
             <a href="{{ url_for('main.needs') }}" class="nav-link">Потреби</a>
             {% if current_user.is_authenticated %}
+                <a href="{{ url_for('main.create_need') }}" class="nav-link">Створити потребу</a>
+                <a href="{{ url_for('main.profile') }}" class="nav-link">Профіль</a>
                 <a href="{{ url_for('main.logout') }}" class="nav-link">Вийти</a>
             {% else %}
                 <a href="{{ url_for('main.login') }}" class="nav-link">Увійти</a>
+                <a href="{{ url_for('main.register') }}" class="nav-link">Зареєструватися</a>
             {% endif %}
         </div>
         {% if current_user.is_authenticated %}
@@ -31,97 +34,95 @@
     </div>
 
     <div class="main-content">
-        <div class="modal-content">
-            <a href="{{ url_for('main.needs') }}" class="back-button">←</a>
-            
-            <div class="modal-progress">
-                <div class="progress-container">
-                    <div class="progress-text">{{ need.percentage_complete }}%</div>
-                    <div class="progress-bar" style="width: 200px;">
-                        <div class="progress" style="width: {{ need.percentage_complete }}%"></div>
+        <div class="need-detail-container">
+            <div class="need-detail-image">
+                {% if need.image_url %}
+                    <img src="{{ url_for('static', filename='need_images/' + need.image_url) }}" alt="{{ need.title }}">
+                {% else %}
+                    <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background-color: #f0f0f0;">
+                        <i class="fas fa-box-open" style="font-size: 5rem; color: #999;"></i>
                     </div>
-                </div>
-                <div class="status-label">{{ need.urgency }}</div>
+                {% endif %}
             </div>
-
-            <h2 class="modal-title">Потреба</h2>
-            <div class="modal-region">{{ need.creator.username }}, {{ need.region }}</div>
-            <div class="modal-location">Місцезнаходження: {{ need.location or 'Не вказано' }}</div>
-
-            <div class="modal-content-split">
-                <div class="modal-description">{{ need.description }}</div>
-                <div class="modal-image">
-                    {% if need.image_url %}
-                        <img src="{{ need.image_url }}" alt="{{ need.title }}">
-                    {% else %}
-                        <div class="photo-placeholder"></div>
+            
+            <div class="need-detail-content">
+                <div class="need-detail-header">
+                    <h2 class="need-detail-title">{{ need.title }}</h2>
+                    
+                    {% if need.urgency == "Normal" %}
+                        <span class="urgency-badge urgency-normal">Звичайна</span>
+                    {% elif need.urgency == "Urgent" %}
+                        <span class="urgency-badge urgency-urgent">Термінова</span>
+                    {% elif need.urgency == "Critical" %}
+                        <span class="urgency-badge urgency-critical">Критична</span>
                     {% endif %}
                 </div>
-            </div>
-
-            {% if current_user.is_authenticated %}
-                <form method="POST" action="{{ url_for('main.donate', need_id=need.id) }}">
-                    {{ form.hidden_tag() }}
-                    <div class="donation-form">
-                        <div class="form-group">
-                            <label for="amount">Кількість ({{ need.unit }}):</label>
-                            {{ form.amount(class="form-control", placeholder="Введіть кількість") }}
-                        </div>
-                        {{ form.submit(class="contribute-button") }}
-                    </div>
-                </form>
-            {% else %}
-                <div class="login-prompt">
-                    <p>Щоб зробити внесок, <a href="{{ url_for('main.login') }}">увійдіть в систему</a> або <a href="{{ url_for('main.register') }}">зареєструйтесь</a>.</p>
+                
+                <div class="need-detail-meta">
+                    <span><i class="fas fa-map-marker-alt"></i> {{ need.region }}, {{ need.location }}</span>
+                    <span><i class="fas fa-user"></i> {{ need.creator.username }}</span>
+                    <span><i class="fas fa-calendar"></i> {{ need.date_created.strftime('%d.%m.%Y') }}</span>
                 </div>
-            {% endif %}
+                
+                <div class="progress-container">
+                    <div class="progress-top">
+                        <div class="progress-label">Прогрес: {{ need.current_amount }} з {{ need.goal }} {{ need.unit }}</div>
+                        <div class="progress-percent">{{ need.percentage_complete }}%</div>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: {{ need.percentage_complete }}%;"></div>
+                    </div>
+                </div>
+                
+                <div class="need-detail-description">
+                    {{ need.description }}
+                </div>
+                
+                {% if current_user.is_authenticated %}
+                    <div class="need-detail-donation">
+                        <h3 class="donation-title">Допомогти задовольнити цю потребу</h3>
+                        
+                        <form method="POST" action="{{ url_for('main.donate', need_id=need.id) }}">
+                            {{ form.hidden_tag() }}
+                            
+                            <div class="form-group">
+                                <label for="amount">Кількість ({{ need.unit }}):</label>
+                                {{ form.amount(class="form-control", placeholder="Введіть кількість") }}
+                                {% if form.amount.errors %}
+                                    <div class="form-error">
+                                        {% for error in form.amount.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="form-actions">
+                                {{ form.submit(class="btn btn-dark") }}
+                            </div>
+                        </form>
+                    </div>
+                {% else %}
+                    <div class="login-prompt">
+                        <p>Щоб зробити внесок, необхідно увійти в систему</p>
+                        <a href="{{ url_for('main.login') }}" class="btn btn-dark">Увійти</a>
+                    </div>
+                {% endif %}
+            </div>
         </div>
     </div>
 
     <div class="footer">
         <div class="footer-top">
             <div class="footer-logo">ТРЕБА</div>
-            {% if not current_user.is_authenticated %}
-                <div class="login-form">
-                    <h3 class="form-title">Увійти</h3>
-                    <form action="{{ url_for('main.login') }}" method="POST">
-                        <div class="form-group">
-                            <label for="email" class="form-label">Email Адреса</label>
-                            <input type="email" id="email" name="email" class="form-input" placeholder="name@example.com">
-                        </div>
-                        <div class="form-group">
-                            <label for="password" class="form-label">Пароль</label>
-                            <input type="password" id="password" name="password" class="form-input" placeholder="Введіть пароль">
-                        </div>
-                        <div class="forgot-password">
-                            <a href="#" style="color: white; text-decoration: none;">Забули пароль?</a>
-                        </div>
-                        <button class="submit-button">Продовжити</button>
-                        <div style="text-align: center; margin-top: 20px; font-size: 12px;">
-                            <span>Не маєте акаунт?</span>
-                            <a href="{{ url_for('main.register') }}" style="color: white; text-decoration: none; margin-left: 5px;">Зареєструватися</a>
-                        </div>
-                    </form>
-                </div>
-            {% endif %}
         </div>
         <div class="footer-bottom">
             <div class="social-icons">
-                <div class="social-icon">f</div>
-                <div class="social-icon">in</div>
+                <div class="social-icon"><i class="fab fa-facebook-f"></i></div>
+                <div class="social-icon"><i class="fab fa-instagram"></i></div>
             </div>
-            <div>launched in 2023</div>
+            <div>launched in {{ now.year }}</div>
         </div>
     </div>
-
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            <div class="flash-messages">
-                {% for category, message in messages %}
-                    <div class="flash-message {{ category }}">{{ message }}</div>
-                {% endfor %}
-            </div>
-        {% endif %}
-    {% endwith %}
 </body>
 </html>
