@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ТРЕБА | Створення запиту</title>
+    <title>ТРЕБА | Профіль користувача</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <style>
-        .create-form-container {
+        .profile-container {
             max-width: 800px;
             margin: 40px auto;
             background-color: #ffffff;
@@ -18,11 +18,61 @@
             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
         }
         
-        .create-form-container h2 {
+        .profile-container h2 {
             color: #333;
             margin-bottom: 25px;
             text-align: center;
             font-weight: 700;
+        }
+        
+        .profile-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .profile-image-container {
+            width: 120px;
+            height: 120px;
+            border-radius: 60px;
+            overflow: hidden;
+            margin-right: 30px;
+            background-color: #f0f0f0;
+            position: relative;
+        }
+        
+        .profile-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .profile-image-upload {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            text-align: center;
+            padding: 5px 0;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        
+        .profile-details {
+            flex: 1;
+        }
+        
+        .user-displayname {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        
+        .user-username {
+            color: #666;
+            font-size: 16px;
         }
         
         .form-group {
@@ -70,8 +120,9 @@
         
         .form-actions {
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-end;
             margin-top: 30px;
+            gap: 15px;
         }
         
         .btn {
@@ -123,18 +174,63 @@
     </div>
 
     <div class="main-content">
-        <div class="create-form-container">
-            <h2>Створення нової потреби</h2>
+        <div class="profile-container">
+            <h2>Мій профіль</h2>
             
             <form method="POST" action="" enctype="multipart/form-data">
                 {{ form.hidden_tag() }}
                 
+                <div class="profile-header">
+                    <div class="profile-image-container">
+                        {% if current_user.image %}
+                            <img class="profile-image" src="{{ url_for('static', filename='profile_pics/' + current_user.image) }}" alt="Фото профілю">
+                        {% else %}
+                            <div class="profile-image" style="background-color: #ddd; display: flex; align-items: center; justify-content: center;">
+                                <span style="font-size: 40px; color: #999;">🧑</span>
+                            </div>
+                        {% endif %}
+                        <label for="image" class="profile-image-upload">Змінити фото</label>
+                        {{ form.image(class="form-control", style="display: none;") }}
+                    </div>
+                    
+                    <div class="profile-details">
+                        <div class="user-displayname">{{ current_user.name }}</div>
+                        <div class="user-username">@{{ current_user.username }}</div>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group half">
+                        <label for="name">Повне ім'я:</label>
+                        {{ form.name(class="form-control", placeholder="Ваше ім'я") }}
+                        {% if form.name.errors %}
+                            <div class="form-error">
+                                {% for error in form.name.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group half">
+                        <label for="username">Ім'я користувача:</label>
+                        {{ form.username(class="form-control", placeholder="Логін") }}
+                        {% if form.username.errors %}
+                            <div class="form-error">
+                                {% for error in form.username.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
                 <div class="form-group">
-                    <label for="title">Назва потреби:</label>
-                    {{ form.title(class="form-control", placeholder="Введіть назву потреби") }}
-                    {% if form.title.errors %}
+                    <label for="email">Email:</label>
+                    {{ form.email(class="form-control", placeholder="Ваша електронна пошта") }}
+                    {% if form.email.errors %}
                         <div class="form-error">
-                            {% for error in form.title.errors %}
+                            {% for error in form.email.errors %}
                                 {{ error }}
                             {% endfor %}
                         </div>
@@ -142,11 +238,11 @@
                 </div>
                 
                 <div class="form-group">
-                    <label for="description">Опис:</label>
-                    {{ form.description(class="form-control", rows=5, placeholder="Детальний опис потреби") }}
-                    {% if form.description.errors %}
+                    <label for="bio">Про мене:</label>
+                    {{ form.bio(class="form-control", rows=4, placeholder="Розкажіть трохи про себе...") }}
+                    {% if form.bio.errors %}
                         <div class="form-error">
-                            {% for error in form.description.errors %}
+                            {% for error in form.bio.errors %}
                                 {{ error }}
                             {% endfor %}
                         </div>
@@ -155,11 +251,11 @@
                 
                 <div class="form-row">
                     <div class="form-group half">
-                        <label for="goal">Необхідна кількість:</label>
-                        {{ form.goal(class="form-control", placeholder="Кількість") }}
-                        {% if form.goal.errors %}
+                        <label for="phone">Телефон:</label>
+                        {{ form.phone(class="form-control", placeholder="Номер телефону") }}
+                        {% if form.phone.errors %}
                             <div class="form-error">
-                                {% for error in form.goal.errors %}
+                                {% for error in form.phone.errors %}
                                     {{ error }}
                                 {% endfor %}
                             </div>
@@ -167,34 +263,8 @@
                     </div>
                     
                     <div class="form-group half">
-                        <label for="unit">Одиниця виміру:</label>
-                        {{ form.unit(class="form-control", placeholder="шт, грн, кг...") }}
-                        {% if form.unit.errors %}
-                            <div class="form-error">
-                                {% for error in form.unit.errors %}
-                                    {{ error }}
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-                    </div>
-                </div>
-                
-                <div class="form-row">
-                    <div class="form-group half">
-                        <label for="region">Область:</label>
-                        {{ form.region(class="form-control", placeholder="Вкажіть область") }}
-                        {% if form.region.errors %}
-                            <div class="form-error">
-                                {% for error in form.region.errors %}
-                                    {{ error }}
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-                    </div>
-                    
-                    <div class="form-group half">
-                        <label for="location">Місце розташування:</label>
-                        {{ form.location(class="form-control", placeholder="Деталі місцезнаходження") }}
+                        <label for="location">Місто:</label>
+                        {{ form.location(class="form-control", placeholder="Ваше місто") }}
                         {% if form.location.errors %}
                             <div class="form-error">
                                 {% for error in form.location.errors %}
@@ -205,32 +275,8 @@
                     </div>
                 </div>
                 
-                <div class="form-group">
-                    <label for="urgency">Терміновість:</label>
-                    {{ form.urgency(class="form-control") }}
-                    {% if form.urgency.errors %}
-                        <div class="form-error">
-                            {% for error in form.urgency.errors %}
-                                {{ error }}
-                            {% endfor %}
-                        </div>
-                    {% endif %}
-                </div>
-                
-                <div class="form-group">
-                    <label for="image">Зображення:</label>
-                    {{ form.image(class="form-control") }}
-                    {% if form.image.errors %}
-                        <div class="form-error">
-                            {% for error in form.image.errors %}
-                                {{ error }}
-                            {% endfor %}
-                        </div>
-                    {% endif %}
-                </div>
-                
                 <div class="form-actions">
-                    <a href="{{ url_for('main.needs') }}" class="btn btn-light">Скасувати</a>
+                    <a href="{{ url_for('main.index') }}" class="btn btn-light">Скасувати</a>
                     {{ form.submit(class="btn btn-dark") }}
                 </div>
             </form>

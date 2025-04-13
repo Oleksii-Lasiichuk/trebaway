@@ -16,6 +16,7 @@ def create_app():
     login_manager.login_message = 'Будь ласка, увійдіть для доступу до цієї сторінки.'
     login_manager.login_message_category = 'info'
 
+    # Import and register the blueprint
     from app.routes import main
     app.register_blueprint(main)
 

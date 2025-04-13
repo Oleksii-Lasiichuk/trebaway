@@ -14,6 +14,10 @@ class User(db.Model, UserMixin):
     name = db.Column(db.String(50))
     surname = db.Column(db.String(50))
     status = db.Column(db.String(20), default="Donor")  # 'Donor' or 'Need'
+    image = db.Column(db.String(20), nullable=True, default='default.jpg')
+    bio = db.Column(db.Text, nullable=True)
+    phone = db.Column(db.String(20), nullable=True)
+    location = db.Column(db.String(100), nullable=True)
     needs = db.relationship('Need', backref='creator', lazy=True)
     donations = db.relationship('Donation', backref='donor', lazy=True)
 
