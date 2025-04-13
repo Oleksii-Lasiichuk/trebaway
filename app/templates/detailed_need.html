@@ -27,7 +27,7 @@
         </div>
         {% if current_user.is_authenticated %}
             <div class="user-profile">
-                <div class="user-name">@{{ current_user.username }}</div>
+                <a href="{{ url_for('main.profile') }}" class="user-name">@{{ current_user.username }}</a>
                 <div class="status-badge">{{ current_user.status }}</div>
             </div>
         {% endif %}
@@ -85,9 +85,9 @@
                         <form method="POST" action="{{ url_for('main.donate', need_id=need.id) }}">
                             {{ form.hidden_tag() }}
                             
-                            <div class="form-group">
+                            <div class="form-group styled-input">
                                 <label for="amount">Кількість ({{ need.unit }}):</label>
-                                {{ form.amount(class="form-control", placeholder="Введіть кількість") }}
+                                {{ form.amount(class="form-input", placeholder="Введіть кількість") }}
                                 {% if form.amount.errors %}
                                     <div class="form-error">
                                         {% for error in form.amount.errors %}
@@ -98,7 +98,7 @@
                             </div>
                             
                             <div class="form-actions">
-                                {{ form.submit(class="btn btn-dark") }}
+                                {{ form.submit(class="btn-donation") }}
                             </div>
                         </form>
                     </div>

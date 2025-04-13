@@ -27,7 +27,7 @@
         </div>
         {% if current_user.is_authenticated %}
             <div class="user-profile">
-                <div class="user-name">@{{ current_user.username }}</div>
+                <a href="{{ url_for('main.profile') }}" class="user-name">@{{ current_user.username }}</a>
                 <div class="status-badge">{{ current_user.status }}</div>
             </div>
         {% endif %}

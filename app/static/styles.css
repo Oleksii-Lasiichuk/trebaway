@@ -97,6 +97,7 @@ a:hover {
     background-color: #fff;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     position: relative;
+    flex-wrap: wrap;
 }
 
 .logo {
@@ -109,6 +110,8 @@ a:hover {
     display: flex;
     gap: 20px;
     justify-content: center; /* Center the navigation links */
+    flex-wrap: wrap;
+    margin: 10px 0;
 }
 
 .nav-link {
@@ -138,6 +141,22 @@ a:hover {
 
 .user-name {
     font-weight: 500;
+    color: var(--primary-color);
+    text-decoration: none;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+}
+
+.user-name:hover {
+    color: var(--secondary-color);
+    transform: translateY(-2px);
+}
+
+.user-name:after {
+    content: '👤';
+    margin-left: 5px;
+    font-size: 14px;
 }
 
 .status-badge {
@@ -550,9 +569,21 @@ a:hover {
 
 .need-detail-donation {
     background-color: #f9f9f9;
-    padding: 25px;
-    border-radius: 10px;
+    padding: 30px;
+    border-radius: 12px;
     margin-top: 30px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+.need-detail-donation .form-group {
+    margin-bottom: 20px;
+}
+
+.need-detail-donation label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 8px;
+    color: #444;
 }
 
 .donation-title {
@@ -560,6 +591,49 @@ a:hover {
     font-weight: 700;
     color: var(--primary-color);
     margin-bottom: 20px;
+}
+
+/* Better form inputs */
+.form-input,
+.styled-input .form-control {
+    width: 100%;
+    padding: 15px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    background-color: #f9f9f9;
+    margin-bottom: 15px;
+}
+
+.form-input:focus,
+.styled-input .form-control:focus {
+    border-color: var(--primary-color);
+    background-color: #fff;
+    box-shadow: 0 0 0 4px rgba(102, 116, 86, 0.1);
+    outline: none;
+}
+
+/* Better donation button */
+.btn-donation {
+    width: 100%;
+    padding: 15px;
+    background-color: var(--primary-color);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 20px;
+}
+
+.btn-donation:hover {
+    background-color: var(--secondary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
 /* About Us Page */
@@ -1226,8 +1300,24 @@ a:hover {
 @media (max-width: 768px) {
     .navbar {
         flex-direction: column;
-        gap: 20px;
-        padding: 20px;
+        padding: 15px;
+    }
+    
+    .user-profile {
+        position: static;
+        margin-top: 15px;
+    }
+    
+    .nav-links {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+    }
+    
+    .nav-link {
+        font-size: 14px;
+        padding: 8px 15px;
     }
     
     .footer-top {
