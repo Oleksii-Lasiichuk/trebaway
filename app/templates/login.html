@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ТРЕБА - Вхід</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        body {
+            background-color: #667456;
+        }
+        .navbar {
+            background-color: #667456;
+            box-shadow: none;
+        }
+        .auth-container {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .auth-form h3 {
+            color: #667456;
+        }
+        .btn-dark {
+            background-color: #667456;
+        }
+        .btn-dark:hover {
+            background-color: #4f5a42;
+        }
+        .auth-footer a {
+            color: #667456;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="{{ url_for('main.index') }}" class="logo">ТРЕБА ✊</a>
+        <div class="nav-links">
+            <a href="{{ url_for('main.index') }}" class="nav-link">Головна</a>
+            <a href="{{ url_for('main.register') }}" class="nav-link">Зареєструватися</a>
+        </div>
+    </div>
+
+    <div class="auth-container active">
+        <div class="auth-form login-form active">
+            <h3>Увійти</h3>
+            <form method="POST" action="">
+                {{ form.hidden_tag() }}
+                <div class="form-group">
+                    <label for="email">Email Адреса</label>
+                    {{ form.email(class="form-control", placeholder="name@example.com") }}
+                    {% if form.email.errors %}
+                        <div class="form-error" style="display: block;">
+                            {% for error in form.email.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    <label for="password">Пароль</label>
+                    {{ form.password(class="form-control", placeholder="Введіть пароль") }}
+                    {% if form.password.errors %}
+                        <div class="form-error" style="display: block;">
+                            {% for error in form.password.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="forgot-password">
+                    <a href="#">Забули пароль?</a>
+                </div>
+                {{ form.submit(class="btn btn-dark") }}
+                
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }}" style="margin-top: 15px; padding: 10px; color: {% if category == 'danger' %}#ff3860{% else %}#4CAF50{% endif %}; background-color: #f8f9fa; border-radius: 5px;">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+                
+                <div class="auth-footer">
+                    <span>Не маєте акаунта?</span>
+                    <a href="{{ url_for('main.register') }}">Зареєструватися</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

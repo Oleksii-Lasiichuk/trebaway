@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ТРЕБА - Підтримка захисників</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-links">
+            <a href="#">Про нас</a>
+            <a href="{{ url_for('main.index') }}">Головна</a>
+            {% if current_user.is_authenticated %}
+                <a href="{{ url_for('main.needs') }}">Потреби</a>
+                <a href="{{ url_for('main.logout') }}">Вийти</a>
+            {% endif %}
+        </div>
+        {% if current_user.is_authenticated %}
+            <div class="user-profile">
+                <div class="user-name">@{{ current_user.username }}</div>
+                <div class="status-badge">{{ current_user.status }}</div>
+            </div>
+        {% endif %}
+    </nav>
+    
+    <!-- Hero Section -->
+    <section class="hero">
+        <h1>ТРЕБА ✊</h1>
+        <p>На фронті не можна чекати - якщо захисникам <strong>треба</strong>, значить <strong>треба</strong>.</p>
+        <div class="hero-buttons">
+            {% if not current_user.is_authenticated %}
+                <a href="{{ url_for('main.login') }}" class="btn btn-outline login-btn">Увійти</a>
+                <a href="{{ url_for('main.register') }}" class="btn btn-light register-btn">Зареєструватися</a>
+            {% else %}
+                <a href="{{ url_for('main.create_need') }}" class="btn btn-outline">Створити запит</a>
+            {% endif %}
+        </div>
+    </section>
+    
+    <!-- Features Section with Eclipse Background -->
+    <div class="features-container">
+        <div class="eclipse-bg"></div>
+        <section class="features">
+            <h2>Про ТРЕБА</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <i class="fa-solid fa-people-carry-box"></i>
+                    <h3>Простота подання запитів</h3>
+                    <p>Військові можуть швидко створювати запити на необхідне обладнання, медикаменти і тд.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fa-solid fa-users"></i>
+                    <h3>Децентралізовані донати</h3>
+                    <p>Кожен може створити чи підтримати конкретний запит напряму, без посередників, що гарантує швидку та цільову допомогу.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-bell fa-3x"></i>
+                    <h3>Сповіщення про потреби</h3>
+                    <p>Користувачі можуть увімкнути сповіщення про створення нових заявок та дізнаватися про потреби, які залишаються актуальними.</p>
+                </div>
+            </div>
+        </section>
+    </div>
+    
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-top">
+            <div class="footer-logo">ТРЕБА</div>
+            {% if not current_user.is_authenticated %}
+                <div class="login-form">
+                    <h3 class="form-title">Увійти</h3>
+                    <form action="{{ url_for('main.login') }}" method="POST">
+                        <div class="form-group">
+                            <label for="email" class="form-label">Email Адреса</label>
+                            <input type="email" id="email" name="email" class="form-input" placeholder="name@example.com" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="password" class="form-label">Пароль</label>
+                            <input type="password" id="password" name="password" class="form-input" placeholder="Введіть пароль" required>
+                        </div>
+                        <div class="forgot-password">
+                            <a href="#" style="color: white; text-decoration: none;">Забули пароль?</a>
+                        </div>
+                        <button type="submit" class="submit-button">Продовжити</button>
+                        <div style="text-align: center; margin-top: 20px; font-size: 12px;">
+                            <span>Не маєте акаунт?</span>
+                            <a href="{{ url_for('main.register') }}" style="color: white; text-decoration: none; margin-left: 5px;">Зареєструватися</a>
+                        </div>
+                    </form>
+                </div>
+            {% endif %}
+        </div>
+        <div class="footer-bottom">
+            <div class="social-icons">
+                <div class="social-icon"><i class="fab fa-facebook-f"></i></div>
+                <div class="social-icon"><i class="fab fa-instagram"></i></div>
+            </div>
+            <div>launched in {{ now.year }}</div>
+        </div>
+    </footer>
+</body>
+</html>
