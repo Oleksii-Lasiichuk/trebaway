@@ -8,26 +8,416 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <!-- <link rel="stylesheet" href="/static/styles.css"> -->
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: #f5f5f5;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px 40px;
+            background-color: #5c6642;
+            color: white;
+            position: relative;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 40px;
+            font-size: 18px;
+        }
+
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            opacity: 0.8;
+        }
+
+        .user-profile {
+            position: absolute;
+            right: 40px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-name {
+            font-weight: 500;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+        }
+
+        .user-name:hover {
+            opacity: 0.8;
+        }
+
+        .status-badge {
+            background-color: #e8f4ff;
+            color: #4a90e2;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .main-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px;
+        }
+
+        .need-detail-container {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 40px;
+            background-color: white;
+            border-radius: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+
+        .need-detail-image {
+            height: 100%;
+            min-height: 400px;
+            overflow: hidden;
+            background-color: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .need-detail-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .need-detail-content {
+            padding: 40px;
+        }
+
+        .need-detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .need-detail-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: #333;
+            margin-right: 20px;
+        }
+
+        .urgency-badge {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .urgency-normal {
+            background-color: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .urgency-urgent {
+            background-color: #fff8e1;
+            color: #ff8f00;
+        }
+
+        .urgency-critical {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+
+        .need-detail-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 30px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .need-detail-meta span {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .progress-container {
+            background-color: #f5f5f5;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 30px;
+        }
+
+        .progress-top {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .progress-label {
+            font-weight: 500;
+        }
+
+        .progress-percent {
+            font-weight: 700;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background-color: #e0e0e0;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: #64735f;
+            border-radius: 5px;
+        }
+
+        .need-detail-description {
+            margin-bottom: 40px;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .need-detail-donation {
+            background-color: #c5d5b5;
+            border-radius: 15px;
+            padding: 25px;
+        }
+
+        .donation-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .styled-input label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .form-input:focus {
+            border-color: #5c6642;
+            outline: none;
+        }
+
+        .form-error {
+            color: #e53935;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .btn-donation {
+            background-color: #5c6642;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-donation:hover {
+            background-color: #4a5335;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .login-prompt {
+            background-color: #f5f5f5;
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+        }
+
+        .login-prompt p {
+            margin-bottom: 15px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 25px;
+            background-color: #5c6642;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            background-color: #4a5335;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .footer {
+            background-color: #5c6642;
+            color: white;
+            padding: 40px;
+            margin-top: 60px;
+        }
+
+        .footer-top {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 40px;
+        }
+
+        .footer-logo {
+            font-size: 42px;
+            font-weight: bold;
+        }
+
+        .footer-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            font-size: 14px;
+        }
+
+        .social-icons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .social-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        
+        .social-icon:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-3px);
+        }
+        
+        .social-icon a {
+            color: white;
+            text-decoration: none;
+        }
+
+        @media (max-width: 992px) {
+            .need-detail-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .need-detail-image {
+                min-height: 300px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                padding: 20px;
+            }
+            
+            .nav-links {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 15px;
+                margin-bottom: 15px;
+            }
+            
+            .user-profile {
+                position: relative;
+                right: auto;
+                margin-top: 15px;
+            }
+            
+            .main-content {
+                padding: 20px;
+            }
+            
+            .need-detail-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .need-detail-content {
+                padding: 20px;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="navbar">
         <div class="nav-links">
-            <a href="{{ url_for('main.about') }}" class="nav-link">Про нас</a>
-            <a href="{{ url_for('main.index') }}" class="nav-link">Головна</a>
-            <a href="{{ url_for('main.needs') }}" class="nav-link">Потреби</a>
+            <a href="/about" class="nav-link">Про нас</a>
+            <a href="/" class="nav-link">Головна</a>
+            <a href="/needs" class="nav-link">Потреби</a>
             {% if current_user.is_authenticated %}
-                <a href="{{ url_for('main.create_need') }}" class="nav-link">Створити потребу</a>
-                <a href="{{ url_for('main.profile') }}" class="nav-link">Профіль</a>
-                <a href="{{ url_for('main.logout') }}" class="nav-link">Вийти</a>
+                <a href="/create_need" class="nav-link">Створити потребу</a>
+                <a href="/profile" class="nav-link">Профіль</a>
+                <a href="/logout" class="nav-link">Вийти</a>
             {% else %}
-                <a href="{{ url_for('main.login') }}" class="nav-link">Увійти</a>
-                <a href="{{ url_for('main.register') }}" class="nav-link">Зареєструватися</a>
+                <a href="/login" class="nav-link">Увійти</a>
+                <a href="/register" class="nav-link">Зареєструватися</a>
             {% endif %}
         </div>
         {% if current_user.is_authenticated %}
             <div class="user-profile">
-                <a href="{{ url_for('main.profile') }}" class="user-name">@{{ current_user.username }}</a>
+                <a href="/profile" class="user-name">@{{ current_user.username }}</a>
                 <div class="status-badge">{{ current_user.status }}</div>
             </div>
         {% endif %}
@@ -37,7 +427,7 @@
         <div class="need-detail-container">
             <div class="need-detail-image">
                 {% if need.image_url %}
-                    <img src="{{ url_for('static', filename='need_images/' + need.image_url) }}" alt="{{ need.title }}">
+                    <img src="/static/need_images/{{ need.image_url }}" alt="{{ need.title }}">
                 {% else %}
                     <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background-color: #f0f0f0;">
                         <i class="fas fa-box-open" style="font-size: 5rem; color: #999;"></i>
@@ -82,7 +472,7 @@
                     <div class="need-detail-donation">
                         <h3 class="donation-title">Допомогти задовольнити цю потребу</h3>
                         
-                        <form method="POST" action="{{ url_for('main.donate', need_id=need.id) }}">
+                        <form method="POST" action="/donate/{{ need.id }}">
                             {{ form.hidden_tag() }}
                             
                             <div class="form-group styled-input">
@@ -105,7 +495,7 @@
                 {% else %}
                     <div class="login-prompt">
                         <p>Щоб зробити внесок, необхідно увійти в систему</p>
-                        <a href="{{ url_for('main.login') }}" class="btn btn-dark">Увійти</a>
+                        <a href="/login" class="btn">Увійти</a>
                     </div>
                 {% endif %}
             </div>
@@ -118,10 +508,10 @@
         </div>
         <div class="footer-bottom">
             <div class="social-icons">
-                <div class="social-icon"><i class="fab fa-facebook-f"></i></div>
-                <div class="social-icon"><i class="fab fa-instagram"></i></div>
+                <div class="social-icon"><a href="#"><i class="fab fa-facebook-f"></i></a></div>
+                <div class="social-icon"><a href="https://www.instagram.com/neoldter/"><i class="fab fa-instagram"></i></a></div>
             </div>
-            <div>launched in {{ now.year }}</div>
+            <div>© {{ now.year }} ТРЕБА. Всі права захищені.</div>
         </div>
     </div>
 </body>
