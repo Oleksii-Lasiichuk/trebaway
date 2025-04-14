@@ -90,8 +90,7 @@ def create_need():
             urgency=form.urgency.data,
             creator=current_user
         )
-        
-        # Handle image upload
+
         if form.image.data:
             image_filename = save_need_image(form.image.data)
             need.image_url = image_filename
@@ -114,11 +113,11 @@ def donate(need_id):
             donor=current_user,
             need=need
         )
-        
+
         need.current_amount += form.amount.data
         db.session.add(donation)
         db.session.commit()
-        
+
         flash(f'Дякуємо за ваш внесок у розмірі {form.amount.data} {need.unit}!', 'success')
         return redirect(url_for('main.need_detail', need_id=need_id))
     
@@ -156,11 +155,9 @@ def save_picture(form_picture):
     _, f_ext = os.path.splitext(form_picture.filename)
     picture_fn = random_hex + f_ext
     picture_path = os.path.join(current_app.root_path, 'static/profile_pics', picture_fn)
-    
-    # Create directory if it doesn't exist
+
     os.makedirs(os.path.dirname(picture_path), exist_ok=True)
     
-    # Resize image
     output_size = (150, 150)
     i = Image.open(form_picture)
     i.thumbnail(output_size)
@@ -175,10 +172,8 @@ def save_need_image(form_picture):
     picture_fn = random_hex + f_ext
     picture_path = os.path.join(current_app.root_path, 'static/need_images', picture_fn)
     
-    # Create directory if it doesn't exist
     os.makedirs(os.path.dirname(picture_path), exist_ok=True)
     
-    # Save the uploaded image with a reasonable size
     output_size = (800, 600)
     i = Image.open(form_picture)
     i.thumbnail(output_size)
