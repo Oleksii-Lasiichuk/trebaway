@@ -275,8 +275,8 @@
                 
                 <div class="form-row">
                     <div class="form-group half">
-                        <label for="goal">Необхідна кількість:</label>
-                        {{ form.goal(class="form-control", placeholder="Кількість") }}
+                        <label for="goal">Необхідна сума:</label>
+                        {{ form.goal(class="form-control", placeholder="Введіть суму") }}
                         {% if form.goal.errors %}
                             <div class="form-error">
                                 {% for error in form.goal.errors %}
