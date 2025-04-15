@@ -33,9 +33,34 @@ class LoginForm(FlaskForm):
 class NeedForm(FlaskForm):
     title = StringField('Назва потреби', validators=[DataRequired()])
     description = TextAreaField('Опис', validators=[DataRequired()])
-    goal = FloatField('Необхідна кількість', validators=[DataRequired()])
-    unit = StringField('Одиниця виміру (шт, грн, тощо)', validators=[DataRequired()])
-    region = StringField('Область', validators=[DataRequired()])
+    goal = FloatField('Необхідна сума', validators=[DataRequired()])
+    region = SelectField('Область', choices=[
+        ('', 'Виберіть область'),
+        ('vinnytsia', 'Вінницька'),
+        ('volynska', 'Волинська'),
+        ('dnipro', 'Дніпропетровська'),
+        ('donetsk', 'Донецька'),
+        ('zhytomyr', 'Житомирська'),
+        ('zakarpattia', 'Закарпатська'),
+        ('zaporizhia', 'Запорізька'),
+        ('ivano-frankivsk', 'Івано-Франківська'),
+        ('kyiv', 'Київська'),
+        ('kirovohrad', 'Кіровоградська'),
+        ('luhansk', 'Луганська'),
+        ('lviv', 'Львівська'),
+        ('mykolaiv', 'Миколаївська'),
+        ('odesa', 'Одеська'),
+        ('poltava', 'Полтавська'),
+        ('rivne', 'Рівненська'),
+        ('sumy', 'Сумська'),
+        ('ternopil', 'Тернопільська'),
+        ('kharkiv', 'Харківська'),
+        ('kherson', 'Херсонська'),
+        ('khmelnytskyi', 'Хмельницька'),
+        ('Черкаська', 'Черкаська'),
+        ('chernivtsi', 'Чернівецька'),
+        ('chernihiv', 'Чернігівська'),
+    ])
     location = StringField('Місце розташування')
     urgency = SelectField('Терміновість', choices=[
         ('Normal', 'Звичайна'), 

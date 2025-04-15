@@ -84,7 +84,6 @@ def create_need():
             title=form.title.data,
             description=form.description.data,
             goal=form.goal.data,
-            unit=form.unit.data,
             region=form.region.data,
             location=form.location.data,
             urgency=form.urgency.data,
@@ -118,7 +117,7 @@ def donate(need_id):
         db.session.add(donation)
         db.session.commit()
 
-        flash(f'Дякуємо за ваш внесок у розмірі {form.amount.data} {need.unit}!', 'success')
+        flash(f'Дякуємо за ваш внесок у розмірі {form.amount.data}!', 'success')
         return redirect(url_for('main.need_detail', need_id=need_id))
     
     flash('Виникла помилка з вашим внеском.', 'danger')

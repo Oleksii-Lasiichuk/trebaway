@@ -27,7 +27,6 @@ class Need(db.Model):
     description = db.Column(db.Text, nullable=False)
     goal = db.Column(db.Float, nullable=False)
     current_amount = db.Column(db.Float, default=0.0)
-    unit = db.Column(db.String(50), nullable=False)
     region = db.Column(db.String(100), nullable=False)
     location = db.Column(db.String(100))
     urgency = db.Column(db.String(50), default="Normal")  # "Normal", "Urgent", "Critical"
