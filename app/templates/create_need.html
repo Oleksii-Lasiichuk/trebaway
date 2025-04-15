@@ -18,52 +18,55 @@
 
         body {
             background-color: #f5f5f5;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
         }
 
         .navbar {
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
             align-items: center;
             padding: 20px 40px;
             background-color: #5c6642;
             color: white;
+            position: relative;
         }
 
         .nav-links {
             display: flex;
-            gap: 20px;
+            gap: 40px;
+            font-size: 18px;
         }
 
         .nav-link {
             color: white;
             text-decoration: none;
             font-weight: 500;
+            transition: all 0.3s ease;
         }
 
         .user-profile {
+            position: absolute;
+            right: 40px;
             display: flex;
             align-items: center;
-            background-color: #c5d5b5;
-            border-radius: 20px;
-            padding: 5px;
-            cursor: pointer;
+            gap: 10px;
         }
 
         .user-name {
-            padding: 5px 10px;
-            color: #5c6642;
+            font-weight: 500;
+            color: white;
             text-decoration: none;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
         }
 
         .status-badge {
-            background-color: #f7c948;
-            padding: 5px 10px;
-            border-radius: 0 20px 20px 0;
-            font-weight: bold;
+            background-color: #e8f4ff;
+            color: #4a90e2;
+            padding: 3px 8px;
+            border-radius: 4px;
             font-size: 12px;
+            font-weight: 500;
         }
 
         .main-content {
