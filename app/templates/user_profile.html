@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ТРЕБА | Профіль {{ user.username }}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px 40px;
+            background-color: #5c6642;
+            color: white;
+            position: relative;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 40px;
+            font-size: 18px;
+        }
+
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            opacity: 0.8;
+        }
+
+        .user-profile {
+            position: absolute;
+            right: 40px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-name {
+            font-weight: 500;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+        }
+
+        .status-badge {
+            background-color: #e8f4ff;
+            color: #4a90e2;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .main-content {
+            flex: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            width: 100%;
+        }
+
+        .profile-container {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 40px;
+        }
+
+        .profile-sidebar {
+            background-color: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .profile-image-container {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin: 0 auto 20px;
+            background-color: #e6f0d8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .profile-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        .default-user-icon {
+            font-size: 70px;
+            color: #5c6642;
+        }
+
+        .profile-info {
+            text-align: center;
+        }
+
+        .profile-name {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .profile-username {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .profile-status {
+            display: inline-block;
+            padding: 5px 12px;
+            background-color: #e8f4ff;
+            color: #4a90e2;
+            border-radius: 15px;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .profile-details {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            text-align: left;
+            margin-top: 20px;
+        }
+
+        .profile-detail {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+        }
+
+        .profile-detail i {
+            width: 20px;
+            color: #5c6642;
+        }
+
+        .trust-rating {
+            margin: 25px 0;
+            text-align: center;
+        }
+
+        .trust-rating-title {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 10px;
+        }
+
+        .stars-container {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+
+        .star {
+            color: #ffc107;
+            font-size: 20px;
+        }
+
+        .rating-count {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .edit-profile-btn {
+            display: block;
+            width: 100%;
+            background-color: #5c6642;
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-weight: 500;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .edit-profile-btn:hover {
+            background-color: #4a5235;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .back-btn {
+            background-color: #e6f0d8;
+            color: #5c6642;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin-bottom: 30px;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background-color: #d8e6c2;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .back-btn i {
+            margin-right: 5px;
+        }
+
+        .profile-content {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .profile-section {
+            background-color: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .profile-section-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #5c6642;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .profile-bio {
+            line-height: 1.6;
+            color: #444;
+            margin-bottom: 20px;
+            font-size: 16px;
+        }
+
+        .needs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .need-card {
+            background-color: #f9f9f9;
+            border-radius: 15px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .need-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-top {
+            position: relative;
+            height: 150px;
+            background-color: #e6f0d8;
+        }
+
+        .card-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .card-body {
+            padding: 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .card-region {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .card-progress {
+            margin-top: auto;
+        }
+
+        .progress-text {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background-color: #e0e0e0;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: #5c6642;
+        }
+
+        .urgency-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .urgency-normal {
+            background-color: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .urgency-urgent {
+            background-color: #fff8e1;
+            color: #ff8f00;
+        }
+
+        .urgency-critical {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+
+        .no-needs {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .footer {
+            background-color: #5c6642;
+            color: white;
+            padding: 40px;
+            margin-top: 60px;
+        }
+
+        .footer-top {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 40px;
+        }
+
+        .footer-logo {
+            font-size: 42px;
+            font-weight: bold;
+        }
+
+        .footer-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            font-size: 14px;
+        }
+
+        .social-icons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .social-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        
+        .social-icon a {
+            color: white;
+            text-decoration: none;
+        }
+
+        @media (max-width: 992px) {
+            .profile-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <div class="nav-links">
+            <a href="{{ url_for('main.about') }}" class="nav-link">Про нас</a>
+            <a href="{{ url_for('main.index') }}" class="nav-link">Головна</a>
+            <a href="{{ url_for('main.needs') }}" class="nav-link">Потреби</a>
+            {% if current_user.is_authenticated %}
+                <a href="{{ url_for('main.create_need') }}" class="nav-link">Створити потребу</a>
+                <a href="{{ url_for('main.profile') }}" class="nav-link">Профіль</a>
+                <a href="{{ url_for('main.logout') }}" class="nav-link">Вийти</a>
+            {% else %}
+                <a href="{{ url_for('main.login') }}" class="nav-link">Увійти</a>
+                <a href="{{ url_for('main.register') }}" class="nav-link">Зареєструватися</a>
+            {% endif %}
+        </div>
+        {% if current_user.is_authenticated %}
+            <div class="user-profile">
+                <a href="{{ url_for('main.user_profile', username=current_user.username) }}" class="user-name">@{{ current_user.username }}</a>
+                <div class="status-badge">{{ current_user.status }}</div>
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="main-content">
+        <a href="{{ url_for('main.index') }}" class="back-btn"><i class="fas fa-arrow-left"></i> Повернутися</a>
+        
+        <div class="profile-container">
+            <div class="profile-sidebar">
+                <div class="profile-image-container">
+                    {% if user.image %}
+                        <div class="profile-image">
+                            <img src="{{ url_for('static', filename='profile_pics/' + user.image) }}" alt="{{ user.username }}">
+                        </div>
+                    {% else %}
+                        <div class="profile-image">
+                            <div class="default-user-icon">👤</div>
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="profile-info">
+                    <h2 class="profile-name">{{ user.name }}</h2>
+                    <div class="profile-username">@{{ user.username }}</div>
+                    <div class="profile-status">{{ user.status }}</div>
+                    
+                    <div class="trust-rating">
+                        <div class="trust-rating-title">Рейтинг довіри</div>
+                        <div class="stars-container">
+                            <span class="star"><i class="fas fa-star"></i></span>
+                            <span class="star"><i class="fas fa-star"></i></span>
+                            <span class="star"><i class="fas fa-star"></i></span>
+                            <span class="star"><i class="fas fa-star"></i></span>
+                            <span class="star"><i class="far fa-star"></i></span>
+                        </div>
+                        <div class="rating-count">4.0/5 (12 оцінок)</div>
+                    </div>
+                    
+                    <div class="profile-details">
+                        {% if user.email %}
+                            <div class="profile-detail">
+                                <i class="fas fa-envelope"></i>
+                                <span>{{ user.email }}</span>
+                            </div>
+                        {% endif %}
+                        
+                        {% if user.location %}
+                            <div class="profile-detail">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <span>{{ user.location }}</span>
+                            </div>
+                        {% endif %}
+                        
+                        {% if user.phone %}
+                            <div class="profile-detail">
+                                <i class="fas fa-phone"></i>
+                                <span>{{ user.phone }}</span>
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    {% if is_own_profile %}
+                        <a href="{{ url_for('main.edit_profile') }}" class="edit-profile-btn">Змінити профіль</a>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="profile-content">
+                <div class="profile-section">
+                    <h3 class="profile-section-title">
+                        <i class="fas fa-user"></i>
+                        Про мене
+                    </h3>
+                    <div class="profile-bio">
+                        {% if user.bio %}
+                            {{ user.bio }}
+                        {% else %}
+                            <em>Користувач поки не додав інформацію про себе.</em>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="profile-section">
+                    <h3 class="profile-section-title">
+                        <i class="fas fa-hands-helping"></i>
+                        Створені потреби
+                    </h3>
+                    
+                    {% if needs %}
+                        <div class="needs-grid">
+                            {% for need in needs %}
+                                <a href="{{ url_for('main.need_detail', need_id=need.id) }}" style="text-decoration: none; color: inherit;">
+                                    <div class="need-card">
+                                        <div class="card-top">
+                                            {% if need.image_url %}
+                                                <img class="card-image" src="{{ url_for('static', filename='need_images/' + need.image_url) }}" alt="{{ need.title }}">
+                                            {% else %}
+                                                <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background-color: #e6f0d8;">
+                                                    <i class="fas fa-box-open" style="font-size: 3rem; color: #5c6642;"></i>
+                                                </div>
+                                            {% endif %}
+                                            <div class="urgency-badge urgency-{{ need.urgency }}">
+                                                {% if need.urgency == "Normal" %}Звичайна
+                                                {% elif need.urgency == "Urgent" %}Термінова
+                                                {% elif need.urgency == "Critical" %}Критична
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        <div class="card-body">
+                                            <h3 class="card-title">{{ need.title }}</h3>
+                                            <div class="card-region">{{ need.region }}, {{ need.location }}</div>
+                                            <div class="card-progress">
+                                                <div class="progress-text">
+                                                    <span>Прогрес</span>
+                                                    <span>{{ need.percentage_complete }}%</span>
+                                                </div>
+                                                <div class="progress-bar">
+                                                    <div class="progress-fill" style="width: {{ need.percentage_complete }}%"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="no-needs">
+                            <p>Цей користувач ще не створив жодної потреби.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <div class="footer-top">
+            <div class="footer-logo">ТРЕБА</div>
+        </div>
+        <div class="footer-bottom">
+            <div class="social-icons">
+                <div class="social-icon"><a href="#"><i class="fab fa-facebook-f"></i></a></div>
+                <div class="social-icon"><a href="#"><i class="fab fa-instagram"></i></a></div>
+            </div>
+            <div>launched in {{ now.year }}</div>
+        </div>
+    </div>
+</body>
+</html>

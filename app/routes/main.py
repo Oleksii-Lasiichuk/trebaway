@@ -123,9 +123,14 @@ def donate(need_id):
     flash('Виникла помилка з вашим внеском.', 'danger')
     return redirect(url_for('main.need_detail', need_id=need_id))
 
-@main.route('/profile', methods=['GET', 'POST'])
+@main.route('/profile')
 @login_required
 def profile():
+    return redirect(url_for('main.user_profile', username=current_user.username))
+
+@main.route('/edit_profile', methods=['GET', 'POST'])
+@login_required
+def edit_profile():
     form = UpdateProfileForm()
     if form.validate_on_submit():
         if form.image.data:
@@ -139,7 +144,7 @@ def profile():
         current_user.location = form.location.data
         db.session.commit()
         flash('Ваш профіль успішно оновлено!', 'success')
-        return redirect(url_for('main.profile'))
+        return redirect(url_for('main.user_profile', username=current_user.username))
     elif request.method == 'GET':
         form.name.data = current_user.name
         form.username.data = current_user.username
@@ -147,7 +152,18 @@ def profile():
         form.bio.data = current_user.bio
         form.phone.data = current_user.phone
         form.location.data = current_user.location
-    return render_template('profile.html', form=form)
+    now = datetime.now()
+    return render_template('profile.html', form=form, now=now)
+
+@main.route('/user/<string:username>')
+def user_profile(username):
+    user = User.query.filter_by(username=username).first_or_404()
+    needs = Need.query.filter_by(user_id=user.id).order_by(Need.date_created.desc()).all()
+    is_own_profile = False
+    if current_user.is_authenticated and current_user.username == username:
+        is_own_profile = True
+    now = datetime.now()
+    return render_template('user_profile.html', user=user, needs=needs, is_own_profile=is_own_profile, now=now)
 
 def save_picture(form_picture):
     random_hex = secrets.token_hex(8)

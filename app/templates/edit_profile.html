@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ТРЕБА | Редагування профілю</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}"> -->
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        body {
+            background-color: #7a8267;
+
+        }
+        
+        /* ...existing styles... */
+    </style>
+    <script>
+        // ...existing script...
+    </script>
+</head>
+<body>
+    <div class="navbar">
+        <div class="nav-links">
+            <a href="{{ url_for('main.about') }}" class="nav-link">Про нас</a>
+            <a href="{{ url_for('main.index') }}" class="nav-link">Головна</a>
+            <a href="{{ url_for('main.needs') }}" class="nav-link">Потреби</a>
+            {% if current_user.is_authenticated %}
+                <a href="{{ url_for('main.create_need') }}" class="nav-link">Створити потребу</a>
+                <a href="{{ url_for('main.profile') }}" class="nav-link">Профіль</a>
+                <a href="{{ url_for('main.logout') }}" class="nav-link">Вийти</a>
+            {% else %}
+                <a href="{{ url_for('main.login') }}" class="nav-link">Увійти</a>
+                <a href="{{ url_for('main.register') }}" class="nav-link">Зареєструватися</a>
+            {% endif %}
+        </div>
+        {% if current_user.is_authenticated %}
+            <div class="user-profile">
+                <a href="{{ url_for('main.user_profile', username=current_user.username) }}" class="user-name">@{{ current_user.username }}</a>
+                <div class="status-badge">{{ current_user.status }}</div>
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="main-content">
+        <div class="profile-container">
+            <h2>Редагування профілю</h2>
+            <a href="{{ url_for('main.profile') }}" class="btn btn-light" style="display: inline-block; margin-bottom: 20px;">
+                <i class="fas fa-arrow-left"></i> Повернутися до профілю
+            </a>
+            
+            <form method="POST" action="" enctype="multipart/form-data">
+                {{ form.hidden_tag() }}
+                
+                <div class="profile-header">
+                    <div class="profile-image-container">
+                        {% if current_user.image %}
+                            <div class="profile-image">
+                                <img class="avatar-image" src="{{ url_for('static', filename='profile_pics/' + current_user.image) }}">
+                            </div>
+                        {% else %}
+                            <div class="profile-image">
+                                <div class="default-user-icon">👤</div>
+                            </div>
+                        {% endif %}
+                        <label for="image" class="profile-image-upload">Змінити фото</label>
+                        {{ form.image(id="image", class="form-control", style="display: none;", onchange="previewImage(event)") }}
+                    </div>
+                    
+                    <div class="profile-details">
+                        <div class="user-displayname">{{ current_user.name }}</div>
+                        <div class="user-username">@{{ current_user.username }}</div>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group half">
+                        <label for="name">Повне ім'я:</label>
+                        {{ form.name(class="form-control", placeholder="Ваше ім'я") }}
+                        {% if form.name.errors %}
+                            <div class="form-error">
+                                {% for error in form.name.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group half">
+                        <label for="username">Ім'я користувача:</label>
+                        {{ form.username(class="form-control", placeholder="Логін") }}
+                        {% if form.username.errors %}
+                            <div class="form-error">
+                                {% for error in form.username.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    {{ form.email(class="form-control", placeholder="Ваша електронна пошта") }}
+                    {% if form.email.errors %}
+                        <div class="form-error">
+                            {% for error in form.email.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group">
+                    <label for="bio">Про мене:</label>
+                    {{ form.bio(class="form-control", rows=4, placeholder="Розкажіть трохи про себе...") }}
+                    {% if form.bio.errors %}
+                        <div class="form-error">
+                            {% for error in form.bio.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group half">
+                        <label for="phone">Телефон:</label>
+                        {{ form.phone(class="form-control", placeholder="Номер телефону") }}
+                        {% if form.phone.errors %}
+                            <div class="form-error">
+                                {% for error in form.phone.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group half">
+                        <label for="location">Місто:</label>
+                        {{ form.location(class="form-control", placeholder="Ваше місто") }}
+                        {% if form.location.errors %}
+                            <div class="form-error">
+                                {% for error in form.location.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <a href="{{ url_for('main.profile') }}" class="btn btn-light">Скасувати</a>
+                    {{ form.submit(class="btn btn-dark") }}
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="footer">
+        <div class="footer-top">
+            <div class="footer-logo">ТРЕБА</div>
+        </div>
+        <div class="footer-bottom">
+            <div class="social-icons">
+                <div class="social-icon">f</div>
+                <div class="social-icon">in</div>
+            </div>
+            <div>launched in {{now.year}}</div>
+        </div>
+    </div>
+</body>
+</html>
