@@ -432,6 +432,131 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        .rate-user-btn, .edit-rating-btn {
+            background-color: #5c6642;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background-color 0.3s;
+        }
+        
+        .rate-user-btn:hover, .edit-rating-btn:hover {
+            background-color: #4a5235;
+        }
+        
+        .your-rating {
+            margin-top: 10px;
+            font-size: 14px;
+        }
+        
+        .review-item {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .reviewer-name {
+            font-weight: 500;
+            color: #5c6642;
+            text-decoration: none;
+        }
+        
+        .review-date {
+            font-size: 12px;
+            color: #888;
+        }
+        
+        .review-text {
+            line-height: 1.6;
+        }
+        
+        .no-reviews {
+            text-align: center;
+            padding: 20px;
+            color: #888;
+        }
+        
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        
+        .modal-content {
+            background-color: #fff;
+            margin: 10% auto;
+            padding: 30px;
+            border-radius: 15px;
+            width: 500px;
+            max-width: 90%;
+        }
+        
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .stars-select {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            font-size: 30px;
+            margin: 20px 0;
+        }
+        
+        .star-select {
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .star-select:hover {
+            transform: scale(1.2);
+        }
+        
+        .star-selected {
+            color: #ffc107;
+        }
+        
+        .submit-rating-btn {
+            background-color: #5c6642;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            width: 100%;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+        
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            resize: vertical;
+        }
     </style>
 </head>
 <body>
@@ -481,14 +606,29 @@
                     
                     <div class="trust-rating">
                         <div class="trust-rating-title">Рейтинг довіри</div>
-                        <div class="stars-container">
-                            <span class="star"><i class="fas fa-star"></i></span>
-                            <span class="star"><i class="fas fa-star"></i></span>
-                            <span class="star"><i class="fas fa-star"></i></span>
-                            <span class="star"><i class="fas fa-star"></i></span>
-                            <span class="star"><i class="far fa-star"></i></span>
+                        <div class="stars-container" id="rating-stars">
+                            {% for i in range(1, 6) %}
+                                <span class="star" data-value="{{ i }}">
+                                    {% if i <= avg_rating|round(0, 'common') %}
+                                        <i class="fas fa-star"></i>
+                                    {% else %}
+                                        <i class="far fa-star"></i>
+                                    {% endif %}
+                                </span>
+                            {% endfor %}
                         </div>
-                        <div class="rating-count">4.0/5 (12 оцінок)</div>
+                        <div class="rating-count">{{ avg_rating }}/5 ({{ rating_count }} оцінок)</div>
+                        
+                        {% if can_rate %}
+                            <button class="rate-user-btn" id="rateUserBtn">Оцінити користувача</button>
+                        {% endif %}
+                        
+                        {% if user_rating %}
+                            <div class="your-rating">
+                                Ваша оцінка: {{ user_rating.rating }}/5
+                                <button class="edit-rating-btn" id="editRatingBtn">Змінити оцінку</button>
+                            </div>
+                        {% endif %}
                     </div>
                     
                     <div class="profile-details">
@@ -584,7 +724,67 @@
                         </div>
                     {% endif %}
                 </div>
+
+                <div class="profile-section">
+                    <h3 class="profile-section-title">
+                        <i class="fas fa-comments"></i>
+                        Відгуки ({{ rating_count }})
+                    </h3>
+                    
+                    <div class="reviews-container">
+                        {% if reviews %}
+                            {% for review in reviews %}
+                                <div class="review-item">
+                                    <div class="review-header">
+                                        <a href="{{ url_for('main.user_profile', username=review.rater.username) }}" class="reviewer-name">{{ review.rater.name }}</a>
+                                        <div class="review-stars">
+                                            {% for i in range(1, 6) %}
+                                                {% if i <= review.rating %}
+                                                    <i class="fas fa-star"></i>
+                                                {% else %}
+                                                    <i class="far fa-star"></i>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </div>
+                                        <div class="review-date">{{ review.date_created.strftime('%d.%m.%Y') }}</div>
+                                    </div>
+                                    {% if review.review %}
+                                        <div class="review-text">{{ review.review }}</div>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="no-reviews">
+                                <p>Цей користувач ще не має жодного відгуку.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
             </div>
+        </div>
+    </div>
+
+    <div id="ratingModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Оцінити користувача</h2>
+            <form action="{{ url_for('main.rate_user', user_id=user.id) }}" method="POST">
+                <div class="rating-stars-container">
+                    <div class="stars-select">
+                        {% for i in range(1, 6) %}
+                            <span class="star-select" data-value="{{ i }}">
+                                <i class="far fa-star"></i>
+                            </span>
+                        {% endfor %}
+                    </div>
+                    <input type="hidden" name="rating" id="ratingValue" value="{{ user_rating.rating if user_rating else '0' }}">
+                </div>
+                <div class="form-group">
+                    <label for="review">Ваш відгук (необов'язково):</label>
+                    <textarea name="review" id="review" rows="4">{{ user_rating.review if user_rating else '' }}</textarea>
+                </div>
+                <button type="submit" class="submit-rating-btn">Надіслати</button>
+            </form>
         </div>
     </div>
 
@@ -600,5 +800,75 @@
             <div>launched in {{ now.year }}</div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const modal = document.getElementById("ratingModal");
+            const rateBtn = document.getElementById("rateUserBtn");
+            const editRatingBtn = document.getElementById("editRatingBtn");
+            const closeBtn = document.getElementsByClassName("close")[0];
+            const starSelects = document.querySelectorAll(".star-select");
+            const ratingInput = document.getElementById("ratingValue");
+            
+            // Open modal when rate button is clicked
+            if (rateBtn) {
+                rateBtn.onclick = function() {
+                    modal.style.display = "block";
+                }
+            }
+            
+            // Open modal when edit rating button is clicked
+            if (editRatingBtn) {
+                editRatingBtn.onclick = function() {
+                    modal.style.display = "block";
+                }
+            }
+            
+            // Close modal when X is clicked
+            if (closeBtn) {
+                closeBtn.onclick = function() {
+                    modal.style.display = "none";
+                }
+            }
+            
+            // Close modal when clicking outside of it
+            window.onclick = function(event) {
+                if (event.target == modal) {
+                    modal.style.display = "none";
+                }
+            }
+            
+            // Handle star selection
+            starSelects.forEach(star => {
+                star.addEventListener('click', function() {
+                    const value = this.getAttribute('data-value');
+                    ratingInput.value = value;
+                    
+                    // Update visual selection
+                    starSelects.forEach(s => {
+                        const starValue = parseInt(s.getAttribute('data-value'));
+                        if (starValue <= value) {
+                            s.innerHTML = '<i class="fas fa-star"></i>';
+                            s.classList.add('star-selected');
+                        } else {
+                            s.innerHTML = '<i class="far fa-star"></i>';
+                            s.classList.remove('star-selected');
+                        }
+                    });
+                });
+            });
+            
+            // Set initial stars based on existing rating if present
+            if (ratingInput.value > 0) {
+                starSelects.forEach(s => {
+                    const starValue = parseInt(s.getAttribute('data-value'));
+                    if (starValue <= ratingInput.value) {
+                        s.innerHTML = '<i class="fas fa-star"></i>';
+                        s.classList.add('star-selected');
+                    }
+                });
+            }
+        });
+    </script>
 </body>
 </html>

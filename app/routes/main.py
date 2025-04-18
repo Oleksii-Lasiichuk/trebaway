@@ -4,10 +4,11 @@ from PIL import Image
 from flask import Blueprint, render_template, redirect, url_for, flash, request, current_app, jsonify
 from flask_login import login_user, logout_user, login_required, current_user
 from app import db
-from app.models import User, Need, Donation
+from app.models import User, Need, Donation, Rating  # Make sure Rating is imported here
 from app.forms import RegistrationForm, LoginForm, NeedForm, DonationForm, UpdateProfileForm
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
+from sqlalchemy import func
 
 # Create the blueprint
 main = Blueprint('main', __name__)
@@ -162,8 +163,82 @@ def user_profile(username):
     is_own_profile = False
     if current_user.is_authenticated and current_user.username == username:
         is_own_profile = True
+    
+    # Get ratings data with safer handling of None values
+    rating_query = db.session.query(func.avg(Rating.rating).label('average'), 
+                                   func.count(Rating.id).label('count')) \
+                           .filter(Rating.rated_user_id == user.id).first()
+    
+    avg_rating = 0
+    if rating_query.average is not None:
+        avg_rating = round(float(rating_query.average), 1)
+    rating_count = rating_query.count or 0
+    
+    # Get all reviews for this user, ordered by most recent first
+    reviews = Rating.query.filter_by(rated_user_id=user.id) \
+                         .order_by(Rating.date_created.desc()).all()
+    
+    # Check if current user has already rated this user
+    user_rating = None
+    can_rate = False
+    
+    if current_user.is_authenticated and not is_own_profile:
+        user_rating = Rating.query.filter_by(
+            rater_id=current_user.id, 
+            rated_user_id=user.id
+        ).first()
+        # User can rate if they haven't rated yet
+        can_rate = user_rating is None
+    
     now = datetime.now()
-    return render_template('user_profile.html', user=user, needs=needs, is_own_profile=is_own_profile, now=now)
+    return render_template('user_profile.html', 
+                          user=user, 
+                          needs=needs,
+                          is_own_profile=is_own_profile, 
+                          now=now, 
+                          avg_rating=avg_rating,
+                          rating_count=rating_count,
+                          reviews=reviews,
+                          user_rating=user_rating,
+                          can_rate=can_rate)
+
+@main.route('/rate_user/<int:user_id>', methods=['POST'])
+@login_required
+def rate_user(user_id):
+    # Ensure the user is not rating themselves
+    if current_user.id == user_id:
+        flash('Ви не можете оцінити самі себе!', 'danger')
+        return redirect(url_for('main.index'))
+    
+    user = User.query.get_or_404(user_id)
+    
+    # Check if user has already rated this user
+    existing_rating = Rating.query.filter_by(
+        rater_id=current_user.id, 
+        rated_user_id=user_id
+    ).first()
+    
+    rating_value = int(request.form.get('rating'))
+    review_text = request.form.get('review')
+    
+    if existing_rating:
+        # Update existing rating
+        existing_rating.rating = rating_value
+        existing_rating.review = review_text
+        flash('Ваша оцінка була оновлена!', 'success')
+    else:
+        # Create new rating
+        new_rating = Rating(
+            rating=rating_value,
+            review=review_text,
+            rater_id=current_user.id,
+            rated_user_id=user.id
+        )
+        db.session.add(new_rating)
+        flash('Дякуємо за вашу оцінку!', 'success')
+    
+    db.session.commit()
+    return redirect(url_for('main.user_profile', username=user.username))
 
 def save_picture(form_picture):
     random_hex = secrets.token_hex(8)
