@@ -10,7 +10,8 @@ app = create_app()
 def inject_now():
     return {'now': datetime.utcnow()}
 
-# Comment out these lines when you no longer want to drop all tables on each run
+# Uncomment these lines temporarily to update the database schema with the new 'deleted' column
+# After running the app once, comment them out again to avoid losing data
 # with app.app_context():
 #     db.drop_all()
 #     db.create_all()

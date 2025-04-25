@@ -373,6 +373,24 @@
             clip: rect(0, 0, 0, 0);
             border: 0;
         }
+
+        /* Styles for deleted needs */
+        .need-deleted {
+            opacity: 0.5;
+            position: relative;
+        }
+
+        .deleted-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: red;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            font-weight: bold;
+        }
     </style>
     <script>
         // Функція для попереднього перегляду зображення
@@ -539,6 +557,18 @@
                     {{ form.submit(class="btn btn-dark") }}
                 </div>
             </form>
+        </div>
+
+        <div class="user-needs">
+            {% for need in user_needs %}
+            <div class="need-card {% if need.deleted %}need-deleted{% endif %}">
+                <!-- ...existing card content... -->
+                {% if need.deleted %}
+                <div class="deleted-badge">Видалено</div>
+                {% endif %}
+                <!-- ...existing card content... -->
+            </div>
+            {% endfor %}
         </div>
     </div>
 

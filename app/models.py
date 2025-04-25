@@ -49,6 +49,7 @@ class Need(db.Model):
     date_created = db.Column(db.DateTime, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     donations = db.relationship('Donation', backref='need', lazy=True)
+    deleted = db.Column(db.Boolean, default=False)
     
     @property
     def percentage_complete(self):

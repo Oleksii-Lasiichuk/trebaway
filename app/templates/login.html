@@ -2,7 +2,7 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ТРЕБА - Вхід</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -21,6 +21,10 @@
             background-color: #fff;
             border-radius: 10px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            padding: 30px;
+            width: 90%;
+            max-width: 400px;
+            margin: 40px auto;
         }
         .auth-form h3 {
             color: #667456;
@@ -33,6 +37,41 @@
         }
         .auth-footer a {
             color: #667456;
+        }
+        
+        /* Responsive styles */
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                padding: 15px;
+            }
+            
+            .nav-links {
+                justify-content: center;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            
+            .auth-container {
+                padding: 20px;
+                margin: 30px auto;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .auth-container {
+                width: 95%;
+                padding: 15px;
+            }
+            
+            .btn-dark {
+                padding: 10px;
+            }
+        }
+        
+        /* Ensure form inputs are easy to use on mobile */
+        input, select, textarea {
+            font-size: 16px;
         }
     </style>
 </head>

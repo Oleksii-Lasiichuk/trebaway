@@ -67,7 +67,8 @@ def logout():
 
 @main.route('/needs')
 def needs():
-    needs = Need.query.order_by(Need.date_created.desc()).all()
+    # Update the query to filter out deleted needs
+    needs = Need.query.filter_by(deleted=False).order_by(Need.date_created.desc()).all()
     return render_template('needs.html', needs=needs)
 
 @main.route('/need/<int:need_id>')
@@ -239,6 +240,23 @@ def rate_user(user_id):
     
     db.session.commit()
     return redirect(url_for('main.user_profile', username=user.username))
+
+@main.route('/delete_need/<int:need_id>', methods=['POST'])
+@login_required
+def delete_need(need_id):
+    need = Need.query.get_or_404(need_id)
+    
+    # Check if current user is the creator of the need
+    if need.user_id != current_user.id:
+        flash('Ви не можете видалити цей збір.', 'danger')
+        return redirect(url_for('main.need_detail', need_id=need_id))
+    
+    # Mark as deleted instead of removing from database
+    need.deleted = True
+    db.session.commit()
+    
+    flash('Збір успішно видалено.', 'success')
+    return redirect(url_for('main.profile'))
 
 def save_picture(form_picture):
     random_hex = secrets.token_hex(8)

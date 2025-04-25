@@ -8,9 +8,9 @@ db = SQLAlchemy()
 login_manager = LoginManager()
 migrate = Migrate()  # Add this line
 
-def create_app():
+def create_app(config_class=Config):
     app = Flask(__name__)
-    app.config.from_object(Config)
+    app.config.from_object(config_class)
 
     db.init_app(app)
     login_manager.init_app(app)
@@ -20,7 +20,7 @@ def create_app():
     login_manager.login_message_category = 'info'
 
     # Import and register the blueprint
-    from app.routes import main
+    from app.routes.main import main
     app.register_blueprint(main)
 
     return app

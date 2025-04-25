@@ -2,7 +2,7 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ТРЕБА | Створення запиту</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -216,6 +216,71 @@
             justify-content: center;
             font-weight: bold;
             cursor: pointer;
+        }
+
+        /* Enhanced responsive styles */
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                padding: 15px;
+            }
+            
+            .nav-links {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 10px;
+                margin-bottom: 10px;
+            }
+            
+            .user-profile {
+                position: static;
+                margin-top: 15px;
+                justify-content: center;
+                width: 100%;
+            }
+            
+            .main-content {
+                padding: 20px;
+            }
+            
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+            
+            .create-form-container {
+                padding: 20px;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .footer-bottom {
+                flex-direction: column;
+                align-items: center;
+                gap: 15px;
+            }
+            
+            .social-icons {
+                justify-content: center;
+            }
+            
+            .footer-logo {
+                font-size: 32px;
+            }
+        }
+        
+        /* Ensure form inputs are easy to use on mobile */
+        input, select, textarea {
+            font-size: 16px;
         }
     </style>
 </head>
