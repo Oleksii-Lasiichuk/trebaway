@@ -2,7 +2,7 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, maximum-scale=1.0, user-scalable=no">
     <title>ТРЕБА | Профіль {{ user.username }}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -640,6 +640,55 @@
             border-radius: 8px;
             resize: vertical;
         }
+
+        /* Back to top button */
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background-color: #5c6642;
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+        }
+        
+        .back-to-top.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .back-to-top:hover {
+            transform: translateY(-5px);
+        }
+        
+        /* Deleted need styles */
+        .need-deleted {
+            opacity: 0.5;
+            position: relative;
+        }
+        
+        .deleted-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #e74c3c;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            z-index: 2;
+        }
     </style>
 </head>
 <body>
@@ -767,6 +816,7 @@
                     {% if needs %}
                         <div class="needs-grid">
                             {% for need in needs %}
+                                {% if not need.deleted %}
                                 <a href="{{ url_for('main.need_detail', need_id=need.id) }}" style="text-decoration: none; color: inherit;">
                                     <div class="need-card">
                                         <div class="card-top">
@@ -777,7 +827,7 @@
                                                     <i class="fas fa-box-open" style="font-size: 3rem; color: #5c6642;"></i>
                                                 </div>
                                             {% endif %}
-                                            <div class="urgency-badge urgency-{{ need.urgency }}">
+                                            <div class="urgency-badge urgency-{{ need.urgency.lower() }}">
                                                 {% if need.urgency == "Normal" %}Звичайна
                                                 {% elif need.urgency == "Urgent" %}Термінова
                                                 {% elif need.urgency == "Critical" %}Критична
@@ -799,6 +849,24 @@
                                         </div>
                                     </div>
                                 </a>
+                                {% else %}
+                                <div class="need-card need-deleted">
+                                    <div class="deleted-badge">Видалено</div>
+                                    <div class="card-top">
+                                        {% if need.image_url %}
+                                            <img class="card-image" src="{{ url_for('static', filename='need_images/' + need.image_url) }}" alt="{{ need.title }}">
+                                        {% else %}
+                                            <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background-color: #e6f0d8;">
+                                                <i class="fas fa-box-open" style="font-size: 3rem; color: #5c6642;"></i>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="card-body">
+                                        <h3 class="card-title">{{ need.title }}</h3>
+                                        <div class="card-region">{{ need.region }}, {{ need.location }}</div>
+                                    </div>
+                                </div>
+                                {% endif %}
                             {% endfor %}
                         </div>
                     {% else %}
@@ -813,7 +881,6 @@
                         <i class="fas fa-comments"></i>
                         Відгуки ({{ rating_count }})
                     </h3>
-                    
                     <div class="reviews-container">
                         {% if reviews %}
                             {% for review in reviews %}
@@ -847,41 +914,22 @@
         </div>
     </div>
 
-    <div id="ratingModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h2>Оцінити користувача</h2>
-            <form action="{{ url_for('main.rate_user', user_id=user.id) }}" method="POST">
-                <div class="rating-stars-container">
-                    <div class="stars-select">
-                        {% for i in range(1, 6) %}
-                            <span class="star-select" data-value="{{ i }}">
-                                <i class="far fa-star"></i>
-                            </span>
-                        {% endfor %}
-                    </div>
-                    <input type="hidden" name="rating" id="ratingValue" value="{{ user_rating.rating if user_rating else '0' }}">
-                </div>
-                <div class="form-group">
-                    <label for="review">Ваш відгук (необов'язково):</label>
-                    <textarea name="review" id="review" rows="4">{{ user_rating.review if user_rating else '' }}</textarea>
-                </div>
-                <button type="submit" class="submit-rating-btn">Надіслати</button>
-            </form>
-        </div>
-    </div>
-
     <div class="footer">
         <div class="footer-top">
             <div class="footer-logo">ТРЕБА</div>
         </div>
         <div class="footer-bottom">
             <div class="social-icons">
-                <div class="social-icon"><a href="#"><i class="fab fa-facebook-f"></i></a></div>
-                <div class="social-icon"><a href="#"><i class="fab fa-instagram"></i></a></div>
+                <div class="social-icon"><a href="https://www.facebook.com/" target="_blank"><i class="fab fa-facebook-f"></i></a></div>
+                <div class="social-icon"><a href="https://www.instagram.com/neoldter/" target="_blank"><i class="fab fa-instagram"></i></a></div>
+                <div class="social-icon"><a href="https://t.me/" target="_blank"><i class="fab fa-telegram"></i></a></div>
             </div>
             <div>launched in {{ now.year }}</div>
         </div>
+    </div>
+
+    <div class="back-to-top" id="backToTop">
+        <i class="fas fa-arrow-up"></i>
     </div>
 
     <script>
@@ -951,6 +999,24 @@
                     }
                 });
             }
+            
+            // Back to top functionality
+            const backToTopButton = document.getElementById("backToTop");
+            
+            window.addEventListener("scroll", () => {
+                if (window.pageYOffset > 300) {
+                    backToTopButton.classList.add("show");
+                } else {
+                    backToTopButton.classList.remove("show");
+                }
+            });
+            
+            backToTopButton.addEventListener("click", () => {
+                window.scrollTo({
+                    top: 0,
+                    behavior: "smooth"
+                });
+            });
         });
     </script>
 </body>
