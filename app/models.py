@@ -1,10 +1,20 @@
 from app import db, login_manager
 from flask_login import UserMixin
 from datetime import datetime
+from sqlalchemy import inspect
 
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
+
+# Функція для перевірки наявності колонки
+def column_exists(table_name, column_name, engine=None):
+    """Перевіряє чи існує колонка в таблиці"""
+    if engine is None:
+        engine = db.engine
+    inspector = inspect(engine)
+    columns = [col['name'] for col in inspector.get_columns(table_name)]
+    return column_name in columns
 
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
@@ -20,6 +30,8 @@ class User(db.Model, UserMixin):
     location = db.Column(db.String(100), nullable=True)
     needs = db.relationship('Need', backref='creator', lazy=True)
     donations = db.relationship('Donation', backref='donor', lazy=True)
+    is_admin = db.Column(db.Boolean, default=False)
+    date_created = db.Column(db.DateTime, default=datetime.utcnow)
     
     # Use primaryjoin to avoid conflicts
     ratings_given = db.relationship('Rating',
@@ -46,16 +58,23 @@ class Need(db.Model):
     location = db.Column(db.String(100))
     urgency = db.Column(db.String(50), default="Normal")  # "Normal", "Urgent", "Critical"
     image_url = db.Column(db.String(255))
+    monobank_url = db.Column(db.String(500))  # Added MonoBank URL field
     date_created = db.Column(db.DateTime, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     donations = db.relationship('Donation', backref='need', lazy=True)
     deleted = db.Column(db.Boolean, default=False)
+    is_approved = db.Column(db.Boolean, default=True)  # Додаємо поле для адміністративного схвалення
     
     @property
     def percentage_complete(self):
         if self.goal == 0:
             return 0
         return int((self.current_amount / self.goal) * 100)
+        
+    @property
+    def remaining_amount(self):
+        """Calculate how much more is needed to reach the goal."""
+        return max(0, self.goal - self.current_amount)
         
     @property
     def unit(self):

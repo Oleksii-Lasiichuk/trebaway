@@ -275,6 +275,30 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
+        .btn-monobank {
+            background-color: #222222;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .btn-monobank:hover {
+            background-color: #111111;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
         .btn-delete {
             background-color: white;
             color: #e53935;
@@ -292,34 +316,6 @@
 
         .btn-delete:hover {
             background-color: #f5f5f5;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .login-prompt {
-            background-color: #f5f5f5;
-            border-radius: 15px;
-            padding: 25px;
-            text-align: center;
-        }
-
-        .login-prompt p {
-            margin-bottom: 15px;
-        }
-
-        .btn {
-            display: inline-block;
-            padding: 10px 25px;
-            background-color: #5c6642;
-            color: white;
-            text-decoration: none;
-            border-radius: 8px;
-            font-weight: 500;
-            transition: all 0.3s;
-        }
-
-        .btn:hover {
-            background-color: #4a5335;
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
@@ -366,12 +362,12 @@
             justify-content: center;
             transition: all 0.3s ease;
         }
-        
+
         .social-icon:hover {
             background-color: rgba(255, 255, 255, 0.3);
             transform: translateY(-3px);
         }
-        
+
         .social-icon a {
             color: white;
             text-decoration: none;
@@ -381,16 +377,16 @@
             .need-detail-container {
                 grid-template-columns: 1fr;
             }
-            
+
             .need-detail-image {
                 min-height: 300px;
             }
-            
+
             .form-actions {
                 flex-wrap: wrap;
                 justify-content: space-between;
             }
-            
+
             .btn-donation, .btn-delete {
                 flex: 1;
                 min-width: 150px;
@@ -404,14 +400,14 @@
                 flex-direction: column;
                 padding: 20px;
             }
-            
+
             .nav-links {
                 flex-wrap: wrap;
                 justify-content: center;
                 gap: 15px;
                 margin-bottom: 15px;
             }
-            
+
             .user-profile {
                 position: relative;
                 right: auto;
@@ -419,53 +415,53 @@
                 justify-content: center;
                 width: 100%;
             }
-            
+
             .main-content {
                 padding: 20px;
             }
-            
+
             .need-detail-header {
                 flex-direction: column;
                 align-items: flex-start;
                 gap: 10px;
             }
-            
+
             .need-detail-content {
                 padding: 20px;
             }
-            
+
             .need-detail-meta {
                 flex-direction: column;
                 align-items: flex-start;
                 gap: 10px;
             }
         }
-        
+
         @media (max-width: 480px) {
             .btn-donation, .btn-delete {
                 width: 100%;
                 margin: 5px 0;
             }
-            
+
             .form-actions {
                 flex-direction: column;
             }
-            
+
             .need-detail-title {
                 font-size: 24px;
             }
-            
+
             .progress-top {
                 flex-direction: column;
                 align-items: flex-start;
             }
-            
+
             .footer-bottom {
                 flex-direction: column;
                 align-items: center;
                 gap: 15px;
             }
-            
+
             .social-icons {
                 justify-content: center;
             }
@@ -494,7 +490,6 @@
             </div>
         {% endif %}
     </div>
-
     <div class="main-content">
         <div class="need-detail-container">
             <div class="need-detail-image">
@@ -506,11 +501,9 @@
                     </div>
                 {% endif %}
             </div>
-            
             <div class="need-detail-content">
                 <div class="need-detail-header">
                     <h2 class="need-detail-title">{{ need.title }}</h2>
-                    
                     {% if need.urgency == "Normal" %}
                         <span class="urgency-badge urgency-normal">Звичайна</span>
                     {% elif need.urgency == "Urgent" %}
@@ -519,13 +512,11 @@
                         <span class="urgency-badge urgency-critical">Критична</span>
                     {% endif %}
                 </div>
-                
                 <div class="need-detail-meta">
                     <span><i class="fas fa-map-marker-alt"></i> {{ need.region }}, {{ need.location }}</span>
                     <span><i class="fas fa-user"></i> <a href="{{ url_for('main.user_profile', username=need.creator.username) }}" style="color: inherit; text-decoration: underline;">{{ need.creator.username }}</a></span>
                     <span><i class="fas fa-calendar"></i> {{ need.date_created.strftime('%d.%m.%Y') }}</span>
                 </div>
-                
                 <div class="progress-container">
                     <div class="progress-top">
                         <div class="progress-label">Прогрес: {{ need.current_amount }} з {{ need.goal }} {{ need.unit }}</div>
@@ -535,53 +526,69 @@
                         <div class="progress-fill" style="width: {{ need.percentage_complete }}%;"></div>
                     </div>
                 </div>
-                
                 <div class="need-detail-description">
                     {{ need.description }}
                 </div>
-                
-                {% if current_user.is_authenticated %}
-                    <div class="need-detail-donation">
-                        <h3 class="donation-title">Допомогти задовольнити цю потребу</h3>
-                        
-                        <form method="POST" action="/donate/{{ need.id }}">
-                            {{ form.hidden_tag() }}
-                            
-                            <div class="form-group styled-input">
-                                <label for="amount">Кількість ({{ need.unit }}):</label>
-                                {{ form.amount(class="form-input", placeholder="Введіть кількість") }}
-                                {% if form.amount.errors %}
-                                    <div class="form-error">
-                                        {% for error in form.amount.errors %}
-                                            {{ error }}
-                                        {% endfor %}
-                                    </div>
-                                {% endif %}
+                <div class="need-detail-donation">
+                    <h3 class="donation-title">Зробити внесок</h3>
+                    {% if current_user.is_authenticated %}
+                        {% if form.errors %}
+                            <div class="flash-messages">
+                                {% for field, errors in form.errors.items() %}
+                                    {% for error in errors %}
+                                        <div class="flash-message danger">{{ error }}</div>
+                                    {% endfor %}
+                                {% endfor %}
                             </div>
+                        {% endif %}
+
+                        <div class="form-group">
+                            <label for="amount_input">Сума ({{ need.unit }})</label>
+                            <input type="number" step="0.01" min="0.01" 
+                                   max="{{ need.remaining_amount }}" 
+                                   name="amount_display" 
+                                   id="amount_input" 
+                                   class="form-control styled-input" 
+                                   placeholder="Введіть суму" 
+                                   value="{{ form.amount.data or '' }}"
+                                   required>
+                        </div>
+
+                        <div class="form-actions">
+                            <form method="POST" action="{{ url_for('main.donate', need_id=need.id) }}" style="flex: 1;">
+                                {{ form.hidden_tag() }}
+                                <input type="hidden" name="amount" id="regular_amount" value="{{ form.amount.data or 0 }}">
+                                {{ form.submit(class="btn-donation", onclick="document.getElementById('regular_amount').value = document.getElementById('amount_input').value;") }}
+                            </form>
                             
-                            <div class="form-actions">
-                                {{ form.submit(class="btn-donation") }}
-                                
-                                {% if current_user.is_authenticated and current_user.id == need.user_id %}
-                                    <form method="POST" action="{{ url_for('main.delete_need', need_id=need.id) }}" onsubmit="return confirm('Ви впевнені, що хочете видалити цей збір?');">
-                                        <button type="submit" class="btn-delete">
-                                            <i class="fas fa-trash-alt"></i> Видалити збір
-                                        </button>
-                                    </form>
-                                {% endif %}
-                            </div>
-                        </form>
-                    </div>
-                {% else %}
-                    <div class="login-prompt">
-                        <p>Щоб зробити внесок, необхідно увійти в систему</p>
-                        <a href="/login" class="btn">Увійти</a>
-                    </div>
-                {% endif %}
+                            {% if need.monobank_url %}
+                            <form method="POST" action="{{ url_for('main.donate_monobank', need_id=need.id) }}" target="_blank" style="flex: 1;">
+                                {{ form.hidden_tag() }}
+                                <input type="hidden" name="amount" id="monobank_amount" value="{{ form.amount.data or 0 }}">
+                                <button type="submit" name="monobank_submit" class="btn-monobank" onclick="document.getElementById('monobank_amount').value = document.getElementById('amount_input').value;">
+                                    <i class="fas fa-credit-card"></i> Задонатити через MonoBank
+                                </button>
+                            </form>
+                            {% endif %}
+                            
+                            {% if current_user.is_authenticated and current_user.id == need.user_id %}
+                                <form method="POST" action="{{ url_for('main.delete_need', need_id=need.id) }}" onsubmit="return confirm('Ви впевнені, що хочете видалити цей збір?');" style="flex-basis: 100%; margin-top: 10px;">
+                                    <button type="submit" class="btn-delete">
+                                        <i class="fas fa-trash-alt"></i> Видалити збір
+                                    </button>
+                                </form>
+                            {% endif %}
+                        </div>
+                    {% else %}
+                        <div class="login-prompt">
+                            <p>Щоб зробити внесок, необхідно увійти в систему</p>
+                            <a href="{{ url_for('main.login', next=request.url) }}" class="btn">Увійти</a>
+                        </div>
+                    {% endif %}
+                </div>
             </div>
         </div>
     </div>
-
     <div class="footer">
         <div class="footer-top">
             <div class="footer-logo">ТРЕБА</div>
@@ -594,5 +601,23 @@
             <div>Launched {{ now.year }}</div>
         </div>
     </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const amountInput = document.getElementById('amount_input');
+            const regularAmountHidden = document.getElementById('regular_amount');
+            const monobankAmountHidden = document.getElementById('monobank_amount');
+
+            if (amountInput) {
+                if (regularAmountHidden) regularAmountHidden.value = amountInput.value || 0;
+                if (monobankAmountHidden) monobankAmountHidden.value = amountInput.value || 0;
+                
+                amountInput.addEventListener('input', function() {
+                    const currentValue = this.value || 0;
+                    if (regularAmountHidden) regularAmountHidden.value = currentValue;
+                    if (monobankAmountHidden) monobankAmountHidden.value = currentValue;
+                });
+            }
+        });
+    </script>
 </body>
 </html>

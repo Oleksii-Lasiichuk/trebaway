@@ -65,77 +65,90 @@ def needs():
 
 @main.route('/need/<int:need_id>')
 def need_detail(need_id):
-    donation_form = DonationForm()eed_id)
+    need = Need.query.get_or_404(need_id)
+    donation_form = DonationForm()
     return render_template('detailed_need.html', need=need, form=donation_form)
-    return render_template('detailed_need.html', need=need, form=donation_form)
+
 @main.route('/create_need', methods=['GET', 'POST'])
-@login_requiredreate_need', methods=['GET', 'POST'])
+@login_required
 def create_need():
     form = NeedForm()
     if form.validate_on_submit():
-        need = Need(_on_submit():
+        need = Need(
             title=form.title.data,
             description=form.description.data,
-            goal=form.goal.data,cription.data,
+            goal=form.goal.data,
             region=form.region.data,
             location=form.location.data,
-            urgency=form.urgency.data,a,
-            creator=current_user.data,
-        )   creator=current_user
+            urgency=form.urgency.data,
+            creator=current_user
         )
-        # Handle image upload here if implemented
         # Handle image upload here if implemented
         db.session.add(need)
-        db.session.commit())
+        db.session.commit()
         flash('Вашу потребу успішно створено!', 'success')
-        return redirect(url_for('main.needs')), 'success')
+        return redirect(url_for('main.needs'))
     return render_template('create_need.html', form=form)
-    return render_template('create_need.html', form=form)
+
 @main.route('/donate/<int:need_id>', methods=['POST'])
-@login_requiredonate/<int:need_id>', methods=['POST'])
+@login_required
 def donate(need_id):
     need = Need.query.get_or_404(need_id)
-    form = DonationForm()_or_404(need_id)
     form = DonationForm()
+    
     if form.validate_on_submit():
-        donation = Donation(it():
-            amount=form.amount.data,
-            donor=current_user,data,
-            need=needrent_user,
-        )   need=need
-        )
-        need.current_amount += form.amount.data
-        db.session.add(donation)orm.amount.data
-        db.session.commit()tion)
-        db.session.commit()
-        flash(f'Дякуємо за ваш внесок у розмірі {form.amount.data}!', 'success')
-        return redirect(url_for('main.need_detail', need_id=need_id)) 'success')
-        return redirect(url_for('main.need_detail', need_id=need_id))
+        try:
+            # Convert to float first to handle larger numbers safely
+            amount = float(form.amount.data)
+            
+            # Check if amount is too large for database
+            if amount > 999999999:  # Adjust based on your database field size
+                flash('Сума пожертви занадто велика. Будь ласка, зв\'яжіться з нами для великих пожертв.', 'danger')
+                return redirect(url_for('main.need_detail', need_id=need.id))
+                
+            # Create the donation record
+            donation = Donation(
+                amount=amount,
+                need_id=need_id,
+                user_id=current_user.id
+            )
+            
+            # Update the need's current amount
+            need.current_amount += amount
+            
+            # Add and commit to database
+            db.session.add(donation)
+            db.session.commit()
+            
+            flash('Дякуємо за вашу пожертву!', 'success')
+            return redirect(url_for('main.need_detail', need_id=need_id))
+            
+        except Exception as e:
+            # Rollback transaction in case of errors
+            db.session.rollback()
+            flash(f'Помилка при обробці пожертви. Будь ласка, спробуйте ще раз.', 'danger')
+            print(f"Donation error: {str(e)}")  # Log the error
+            return redirect(url_for('main.need_detail', need_id=need_id))
+    
     flash('Виникла помилка з вашим внеском.', 'danger')
     return redirect(url_for('main.need_detail', need_id=need_id))
-    return redirect(url_for('main.need_detail', need_id=need_id))
+
 @main.route('/delete_need/<int:need_id>', methods=['POST'])
-@login_requiredelete_need/<int:need_id>', methods=['POST'])
+@login_required
 def delete_need(need_id):
     need = Need.query.get_or_404(need_id)
-    need = Need.query.get_or_404(need_id)
     # Check if current user is the creator of the need
-    if need.user_id != current_user.id:tor of the need
+    if need.user_id != current_user.id:
         flash('Ви не можете видалити цей збір.', 'danger')
         return redirect(url_for('main.need_detail', need_id=need_id))
-        return redirect(url_for('main.need_detail', need_id=need_id))
     # Mark as deleted instead of removing from database
-    need.deleted = Truenstead of removing from database
-    db.session.commit()
+    need.deleted = True
     db.session.commit()
     flash('Збір успішно видалено.', 'success')
-    return redirect(url_for('main.profile'))')
     return redirect(url_for('main.profile'))
 
-
-
-
-
-
-
-    return render_template('profile.html', user=current_user, user_needs=user_needs)    user_needs = Need.query.filter_by(user_id=current_user.id).order_by(Need.date_created.desc()).all()    # Query for user's needs (including deleted ones)def profile():@login_required@main.route('/profile')
+@main.route('/profile')
+@login_required
+def profile():
+    user_needs = Need.query.filter_by(user_id=current_user.id).order_by(Need.date_created.desc()).all()
+    return render_template('profile.html', user=current_user, user_needs=user_needs)

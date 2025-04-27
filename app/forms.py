@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed
 from wtforms import StringField, PasswordField, SubmitField, TextAreaField, FloatField, SelectField
-from wtforms.validators import DataRequired, Email, EqualTo, Length, ValidationError
+from wtforms.validators import DataRequired, Email, EqualTo, Length, ValidationError, URL, Optional
 from flask_login import current_user
 from app.models import User
 
@@ -67,12 +67,24 @@ class NeedForm(FlaskForm):
         ('Urgent', 'Термінова'), 
         ('Critical', 'Критична')
     ])
+    monobank_url = StringField('Посилання на MonoBank', validators=[Optional(), URL(message='Будь ласка, введіть правильну URL адресу')])
     image = FileField('Зображення')
     submit = SubmitField('Створити')
 
 class DonationForm(FlaskForm):
     amount = FloatField('Кількість', validators=[DataRequired()])
     submit = SubmitField('Зробити внесок')
+    monobank_submit = SubmitField('Задонатити через MonoBank')
+    
+    def set_max_amount(self, need):
+        """Set maximum allowed donation amount based on the need."""
+        self.max_allowed = need.remaining_amount
+        self.unit = need.unit
+    
+    def validate_amount(self, amount):
+        """Validate that donation doesn't exceed the remaining goal amount."""
+        if hasattr(self, 'max_allowed') and amount.data > self.max_allowed:
+            raise ValidationError(f'Ви не можете внести більше, ніж потрібно. Максимальна сума: {self.max_allowed:.2f} {self.unit}')
 
 class UpdateProfileForm(FlaskForm):
     name = StringField('Повне ім\'я', validators=[Length(min=2, max=100)])

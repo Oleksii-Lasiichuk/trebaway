@@ -389,6 +389,19 @@
                         </div>
                     {% endif %}
                 </div>
+
+                <div class="form-group">
+                    <label for="monobank_url">Посилання на MonoBank банку:</label>
+                    {{ form.monobank_url(class="form-control", placeholder="https://send.monobank.ua/...") }}
+                    {% if form.monobank_url.errors %}
+                        <div class="form-error">
+                            {% for error in form.monobank_url.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    <small class="form-text text-muted">Додайте посилання на вашу MonoBank банку для прямих донатів</small>
+                </div>
                 
                 <div class="form-group">
                     <label for="image">Зображення:</label>
