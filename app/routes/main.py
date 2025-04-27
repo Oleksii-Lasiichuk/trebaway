@@ -48,7 +48,8 @@ def register():
 def admin_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        if not current_user.is_authenticated or not current_user.is_admin:
+        # Перевіряємо, чи користувач автентифікований та чи є адміном
+        if not current_user.is_authenticated or not hasattr(current_user, 'is_admin') or not current_user.is_admin:
             flash('Доступ заборонено. Ця сторінка доступна тільки для адміністраторів.', 'danger')
             return redirect(url_for('main.index'))
         return f(*args, **kwargs)
@@ -73,7 +74,7 @@ def login():
             flash('Ви успішно увійшли в систему!', 'success')
             
             # Якщо користувач - адмін, показуємо додаткове повідомлення
-            if user.is_admin:
+            if hasattr(user, 'is_admin') and user.is_admin:
                 flash('Ви увійшли як адміністратор. Доступ до панелі адміністратора через меню.', 'info')
                 
             return redirect(next_page if next_page else url_for('main.needs'))
@@ -89,7 +90,7 @@ def logout():
 @main.route('/needs')
 def needs():
     needs = Need.query.filter_by(deleted=False).order_by(Need.date_created.desc()).all()
-    now = datetime.now()
+    now = datetime.now() # Use .now() for local time if needed
     return render_template('needs.html', needs=needs, now=now)
 
 @main.route('/need/<int:need_id>')
@@ -97,10 +98,11 @@ def need_detail(need_id):
     need = Need.query.get_or_404(need_id)
     form = DonationForm()
     
-    # Set maximum donation amount for form validation
-    form.set_max_amount(need)
+    # Set maximum donation amount for form validation if method exists
+    if hasattr(form, 'set_max_amount'):
+        form.set_max_amount(need)
     
-    now = datetime.now()
+    now = datetime.now() # Use .now() for local time if needed
     return render_template('detailed_need.html', need=need, form=form, now=now)
 
 @main.route('/create_need', methods=['GET', 'POST'])
@@ -115,11 +117,11 @@ def create_need():
             region=form.region.data,
             location=form.location.data,
             urgency=form.urgency.data,
-            monobank_url=form.monobank_url.data,
+            monobank_url=form.monobank_url.data if hasattr(form, 'monobank_url') else None,
             creator=current_user
         )
 
-        if form.image.data:
+        if hasattr(form, 'image') and form.image.data:
             image_filename = save_need_image(form.image.data)
             need.image_url = image_filename
         
@@ -135,357 +137,416 @@ def donate(need_id):
     need = Need.query.get_or_404(need_id)
     form = DonationForm()
     
-    # Set maximum donation amount
-    form.set_max_amount(need)
+    # Set maximum donation amount if method exists
+    if hasattr(form, 'set_max_amount'):
+        form.set_max_amount(need)
     
     if form.validate_on_submit():
-        # Additional check just to be safe
-        if form.amount.data > need.remaining_amount:r numbers safely
-            flash(f'Максимально допустима сума: {need.remaining_amount:.2f} {need.unit}', 'danger')
+        try:
+            amount = float(form.amount.data) # Convert to float
+
+            # Check if amount is too large (optional, adjust limit)
+            if amount > 999999999:
+                flash('Сума пожертви занадто велика. Будь ласка, зв\'яжіться з нами для великих пожертв.', 'danger')
+                return redirect(url_for('main.need_detail', need_id=need_id))
+
+            # Check if amount exceeds remaining need amount
+            if hasattr(need, 'remaining_amount') and amount > need.remaining_amount:
+                flash(f'Максимально допустима сума: {need.remaining_amount:.2f} {need.unit}', 'danger')
+                return redirect(url_for('main.need_detail', need_id=need_id))
+            
+            # Create donation object based on available attributes
+            donation_args = {'amount': amount}
+            if hasattr(Donation, 'donor'): # If using relationship
+                donation_args['donor'] = current_user
+                donation_args['need'] = need
+            else: # If using foreign keys directly
+                donation_args['user_id'] = current_user.id
+                donation_args['need_id'] = need_id
+            
+            donation = Donation(**donation_args)
+            
+            need.current_amount += amount
+            db.session.add(donation)
+            db.session.commit()
+            
+            flash(f'Дякуємо за ваш внесок у розмірі {amount:.2f} {need.unit}!', 'success')
             return redirect(url_for('main.need_detail', need_id=need_id))
-            # Check if amount is too large for database
-        donation = Donation(99999:  # Adjust based on your database field size
-            amount=form.amount.data, занадто велика. Будь ласка, зв\'яжіться з нами для великих пожертв.', 'danger')
-            donor=current_user,(url_for('main.need_detail', need_id=need_id))
-            need=need
-        )   # Additional check just to be safe
-            if amount > need.remaining_amount:
-        need.current_amount += form.amount.dataума: {need.remaining_amount:.2f} {need.unit}', 'danger')
-        db.session.add(donation)url_for('main.need_detail', need_id=need_id))
-        db.session.commit()
-            # Create the donation record
-        flash(f'Дякуємо за ваш внесок у розмірі {form.amount.data:.2f} {need.unit}!', 'success')
-        return redirect(url_for('main.need_detail', need_id=need_id))
-                donor=current_user,
-    # Display validation errors
+
+        except ValueError:
+             flash('Будь ласка, введіть коректну суму.', 'danger')
+             return redirect(url_for('main.need_detail', need_id=need_id))
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Помилка при обробці пожертви. Будь ласка, спробуйте ще раз.', 'danger')
+            print(f"Donation error: {str(e)}") # Log the error
+            return redirect(url_for('main.need_detail', need_id=need_id))
+    
+    # Display validation errors if form validation failed
     for field, errors in form.errors.items():
         for error in errors:
-            flash(f"{error}", 'danger')nt
-            db.session.add(donation)
+            flash(f"{error}", 'danger')
+            
     return redirect(url_for('main.need_detail', need_id=need_id))
 
-@main.route('/donate_monobank/<int:need_id>', methods=['POST'])} {need.unit}!', 'success')
-@login_requiredurn redirect(url_for('main.need_detail', need_id=need_id))
+@main.route('/donate_monobank/<int:need_id>', methods=['POST'])
+@login_required
 def donate_monobank(need_id):
     need = Need.query.get_or_404(need_id)
-            # Rollback transaction in case of errors
+            
     # Перевіряємо наявність URL MonoBank перед обробкою
-    if not need.monobank_url:ри обробці пожертви. Будь ласка, спробуйте ще раз.', 'danger')
+    if not hasattr(need, 'monobank_url') or not need.monobank_url:
         flash('На жаль, посилання на MonoBank не вказано для цього збору.', 'danger')
-        return redirect(url_for('main.need_detail', need_id=need_id))id))
+        return redirect(url_for('main.need_detail', need_id=need_id))
     
     try:
-        # Отримуємо суму з прихованого поля формиfield, errors in form.errors.items():
+        # Отримуємо суму з прихованого поля форми
         amount = float(request.form.get('amount', 0))
-        er')
+        
         # Перевірка на валідність суми
         if amount <= 0:
             flash('Сума донату повинна бути більше нуля.', 'danger')
-            return redirect(url_for('main.need_detail', need_id=need_id))e_monobank/<int:need_id>', methods=['POST'])
+            return redirect(url_for('main.need_detail', need_id=need_id))
         
-        # Перевірка на занадто велику суму
-        if amount > 999999999:  # Adjust based on your database field size = Need.query.get_or_404(need_id)
+        # Перевірка на занадто велику суму (optional, adjust limit)
+        if amount > 999999999:
             flash('Сума пожертви занадто велика. Будь ласка, зв\'яжіться з нами для великих пожертв.', 'danger')
-            return redirect(url_for('main.need_detail', need_id=need_id))nk перед обробкою
+            return redirect(url_for('main.need_detail', need_id=need_id))
             
-        # Перевірка, чи не перевищує сума залишокору.', 'danger')
-        if amount > need.remaining_amount:rn redirect(url_for('main.need_detail', need_id=need_id))
+        # Перевірка, чи не перевищує сума залишок
+        if hasattr(need, 'remaining_amount') and amount > need.remaining_amount:
             flash(f'Максимально допустима сума: {need.remaining_amount:.2f} {need.unit}', 'danger')
-            return redirect(url_for('main.need_detail', need_id=need_id))рихованого поля форми
+            return redirect(url_for('main.need_detail', need_id=need_id))
                 
-        # Створюємо запис про донатest.form.get('amount', 0))
-        donation = Donation(Error, TypeError):
-            amount=amount,   flash('Будь ласка, введіть коректну суму.', 'danger')
-            donor=current_user,        return redirect(url_for('main.need_detail', need_id=need_id))
-            need=need
-        )
-ату повинна бути більше нуля.', 'danger')
-        need.current_amount += amount        return redirect(url_for('main.need_detail', need_id=need_id))
+        # Створюємо запис про донат відповідно до атрибутів моделі
+        donation_args = {'amount': amount}
+        if hasattr(Donation, 'donor'):
+            donation_args['donor'] = current_user
+            donation_args['need'] = need
+        else:
+            donation_args['user_id'] = current_user.id
+            donation_args['need_id'] = need_id
+            
+        donation = Donation(**donation_args)
+
+        need.current_amount += amount
         db.session.add(donation)
-        db.session.commit()# Перевірка, чи не перевищує сума залишок
-:
-        flash(f'Дякуємо за ваш внесок через MonoBank у розмірі {amount:.2f} {need.unit}! Вас буде перенаправлено для оплати.', 'success')сума: {need.remaining_amount:.2f} {need.unit}', 'danger')
-                return redirect(url_for('main.need_detail', need_id=need_id))
+        db.session.commit()
+
+        flash(f'Дякуємо за ваш внесок через MonoBank у розмірі {amount:.2f} {need.unit}! Вас буде перенаправлено для оплати.', 'success')
+        
         # Перенаправляємо на URL MonoBank
-        return redirect(need.monobank_url) запис про донат
-     Donation(
+        return redirect(need.monobank_url)
+    
+    except ValueError:
+        flash('Будь ласка, введіть коректну суму.', 'danger')
+        return redirect(url_for('main.need_detail', need_id=need_id))
     except Exception as e:
-        # Rollback transaction in case of errors
         db.session.rollback()
         flash('Помилка при обробці пожертви. Будь ласка, спробуйте ще раз.', 'danger')
-        print(f"MonoBank donation error: {str(e)}")  # Log the error
-        return redirect(url_for('main.need_detail', need_id=need_id))    need.current_amount += amount
+        print(f"MonoBank donation error: {str(e)}") # Log the error
+        return redirect(url_for('main.need_detail', need_id=need_id))
 
-@main.route('/profile')commit()
+@main.route('/profile')
 @login_required
-def profile():сок через MonoBank у розмірі {amount:.2f} {need.unit}! Вас буде перенаправлено для оплати.', 'success')
+def profile():
     # Якщо користувач - адмін, показуємо посилання на адмін-панель
-    if hasattr(current_user, 'is_admin') and current_user.is_admin:L MonoBank
+    if hasattr(current_user, 'is_admin') and current_user.is_admin:
         return render_template('admin_profile.html', user=current_user, now=datetime.now())
         
+    # Redirect regular users to their public profile page
     return redirect(url_for('main.user_profile', username=current_user.username))
 
 @main.route('/edit_profile', methods=['GET', 'POST'])
-@login_required посилання на адмін-панель
-def edit_profile(): current_user.is_admin:
-    form = UpdateProfileForm()', user=current_user, now=datetime.now())
+@login_required
+def edit_profile():
+    form = UpdateProfileForm()
     if form.validate_on_submit():
-        if form.image.data:=current_user.username))
+        if form.image.data:
             picture_file = save_picture(form.image.data)
-            current_user.image = picture_fileods=['GET', 'POST'])
+            current_user.image = picture_file
         current_user.name = form.name.data
         current_user.username = form.username.data
         current_user.email = form.email.data
         current_user.bio = form.bio.data
         current_user.phone = form.phone.data
-        current_user.location = form.location.data.data)
-        db.session.commit().image = picture_file
+        current_user.location = form.location.data
+        db.session.commit()
         flash('Ваш профіль успішно оновлено!', 'success')
-        return redirect(url_for('main.user_profile', username=current_user.username))        current_user.username = form.username.data
-    elif request.method == 'GET':l.data
-        form.name.data = current_user.nameform.bio.data
+        return redirect(url_for('main.user_profile', username=current_user.username))
+    elif request.method == 'GET':
+        form.name.data = current_user.name
         form.username.data = current_user.username
-        form.email.data = current_user.email    current_user.location = form.location.data
+        form.email.data = current_user.email
         form.bio.data = current_user.bio
         form.phone.data = current_user.phone
-        form.location.data = current_user.location    return redirect(url_for('main.user_profile', username=current_user.username))
-    now = datetime.now() 'GET':
+        form.location.data = current_user.location
+        
+    now = datetime.now() # Use .now() for local time if needed
     return render_template('edit_profile.html', form=form, now=now)
-current_user.username
-@main.route('/user/<string:username>')    form.email.data = current_user.email
+
+@main.route('/user/<string:username>')
 def user_profile(username):
     user = User.query.filter_by(username=username).first_or_404()
     
     # Get active (not deleted) needs for the user
-    needs = Need.query.filter_by(user_id=user.id, deleted=False).order_by(Need.date_created.desc()).all()return render_template('edit_profile.html', form=form, now=now)
+    needs = Need.query.filter_by(user_id=user.id, deleted=False).order_by(Need.date_created.desc()).all()
     
     is_own_profile = False
     if current_user.is_authenticated and current_user.username == username:
-        is_own_profile = Trueuser = User.query.filter_by(username=username).first_or_404()
+        is_own_profile = True
     
-    # Get ratings data with safer handling of None values# Get active (not deleted) needs for the user
-    rating_query = db.session.query(func.avg(Rating.rating).label('average'), ed=False).order_by(Need.date_created.desc()).all()
+    # Get ratings data with safer handling of None values
+    rating_query = db.session.query(func.avg(Rating.rating).label('average'), 
                                    func.count(Rating.id).label('count')) \
-                           .filter(Rating.rated_user_id == user.id).first() False
-    if current_user.is_authenticated and current_user.username == username:
-    avg_rating = 0
-    if rating_query.average is not None:
+                           .filter(Rating.rated_user_id == user.id).first()
+    
+    avg_rating = 0.0
+    if rating_query and rating_query.average is not None:
         avg_rating = round(float(rating_query.average), 1)
-    Rating.rating).label('average'), 
-    rating_count = rating_query.count or 0                               func.count(Rating.id).label('count')) \
-    ter(Rating.rated_user_id == user.id).first()
+    
+    rating_count = rating_query.count if rating_query else 0
+    
     # Check if current user has already rated this user
-    user_rating = Noneavg_rating = 0
-    can_rate = Falseage is not None:
-    erage), 1)
+    user_rating = None
+    can_rate = False
+    
     if current_user.is_authenticated:
-        user_rating = Rating.query.filter_by(rater_id=current_user.id, rated_user_id=user.id).first()r 0
-        # Can rate if not self and not already rated or can edit their rating
-        can_rate = current_user.id != user.idis user
+        user_rating = Rating.query.filter_by(rater_id=current_user.id, rated_user_id=user.id).first()
+        # Can rate if not self and not already rated
+        can_rate = current_user.id != user.id and user_rating is None
     
     # Get reviews for this user
     reviews = Rating.query.filter_by(rated_user_id=user.id).order_by(Rating.date_created.desc()).all()
     
-    now = datetime.now().filter_by(rater_id=current_user.id, rated_user_id=user.id).first()
-    return render_template('user_profile.html',         # Can rate if not self and not already rated or can edit their rating
+    now = datetime.now() # Use .now() for local time if needed
+    return render_template('user_profile.html', 
                           user=user, 
                           needs=needs, 
-                          is_own_profile=is_own_profile, his user
-                          avg_rating=avg_rating,r_id=user.id).order_by(Rating.date_created.desc()).all()
+                          is_own_profile=is_own_profile, 
+                          avg_rating=avg_rating,
                           rating_count=rating_count,
                           reviews=reviews,
-                          user_rating=user_rating,, 
-                          can_rate=can_rate,                      user=user, 
+                          user_rating=user_rating, 
+                          can_rate=can_rate,
                           now=now)
-                      is_own_profile=is_own_profile, 
-@main.route('/rate_user/<int:user_id>', methods=['POST']),
-@login_required_count,
-def rate_user(user_id):reviews,
-    # Ensure the user is not rating themselvesr_rating=user_rating,
-    if current_user.id == user_id:             can_rate=can_rate,
-        flash('Ви не можете оцінити самі себе!', 'danger')                      now=now)
+
+@main.route('/rate_user/<int:user_id>', methods=['POST'])
+@login_required
+def rate_user(user_id):
+    # Ensure the user is not rating themselves
+    if current_user.id == user_id:
+        flash('Ви не можете оцінити самі себе!', 'danger')
         return redirect(url_for('main.index'))
-    ods=['POST'])
-    user = User.query.get_or_404(user_id)in_required
     
-    # Check if user has already rated this usering themselves
+    user = User.query.get_or_404(user_id)
+    
+    # Check if user has already rated this user
     existing_rating = Rating.query.filter_by(
-        rater_id=current_user.id, е!', 'danger')
+        rater_id=current_user.id, 
         rated_user_id=user_id
     ).first()
-    r_404(user_id)
-    rating_value = int(request.form.get('rating'))
-    review_text = request.form.get('review')rated this user
-    ery.filter_by(
-    if existing_rating:
-        # Update existing rating
-        existing_rating.rating = rating_valuest()
-        existing_rating.review = review_text
-        flash('Ваша оцінка була оновлена!', 'success')
-    else:review_text = request.form.get('review')
-        # Create new rating
-        new_rating = Rating(
-            rating=rating_value,        # Update existing rating
-            review=review_text,
-            rater_id=current_user.id,g_rating.review = review_text
-            rated_user_id=user.idа була оновлена!', 'success')
-        )
-        db.session.add(new_rating)    # Create new rating
-        flash('Дякуємо за вашу оцінку!', 'success')
     
-    db.session.commit()
+    try:
+        rating_value = int(request.form.get('rating'))
+        review_text = request.form.get('review', '').strip() # Get review text, default to empty string
+
+        if not (1 <= rating_value <= 5):
+             flash('Оцінка повинна бути від 1 до 5.', 'danger')
+             return redirect(url_for('main.user_profile', username=user.username))
+
+        if existing_rating:
+            # Update existing rating (optional, if you allow re-rating)
+            # existing_rating.rating = rating_value
+            # existing_rating.review = review_text
+            # flash('Ваша оцінка була оновлена!', 'success')
+            flash('Ви вже оцінили цього користувача.', 'info')
+        else:
+            # Create new rating
+            new_rating = Rating(
+                rating=rating_value,
+                review=review_text,
+                rater_id=current_user.id,
+                rated_user_id=user.id
+            )
+            db.session.add(new_rating)
+            flash('Дякуємо за вашу оцінку!', 'success')
+        
+        db.session.commit()
+    except ValueError:
+        flash('Невірне значення оцінки.', 'danger')
+    except Exception as e:
+        db.session.rollback()
+        flash('Помилка при збереженні оцінки.', 'danger')
+        print(f"Rating error: {str(e)}") # Log the error
+        
     return redirect(url_for('main.user_profile', username=user.username))
-        rated_user_id=user.id
+
 @main.route('/delete_need/<int:need_id>', methods=['POST'])
-@login_requirednew_rating)
-def delete_need(need_id):за вашу оцінку!', 'success')
+@login_required
+def delete_need(need_id):
     need = Need.query.get_or_404(need_id)
     
-    # Check if current user is the creator of the needle', username=user.username))
-    if need.user_id != current_user.id:
-        flash('Ви не можете видалити цей збір.', 'danger')eed_id>', methods=['POST'])
+    # Check if current user is the creator of the need or an admin
+    is_admin = hasattr(current_user, 'is_admin') and current_user.is_admin
+    if need.user_id != current_user.id and not is_admin:
+        flash('Ви не можете видалити цей збір.', 'danger')
         return redirect(url_for('main.need_detail', need_id=need_id))
-    (need_id):
-    # Mark as deleted instead of removing from database.query.get_or_404(need_id)
+    
+    # Mark as deleted instead of removing from database
     need.deleted = True
-    db.session.commit()is the creator of the need
-    nt_user.id:
+    db.session.commit()
+    
     flash('Збір успішно видалено.', 'success')
-    return redirect(url_for('main.profile'))    return redirect(url_for('main.need_detail', need_id=need_id))
+    # Redirect admin to admin panel, user to their profile
+    if is_admin:
+         return redirect(url_for('main.admin_panel'))
+    else:
+         return redirect(url_for('main.profile'))
 
-# Новий маршрут для адмін-панеліng from database
+# --- Admin Routes ---
+
 @main.route('/admin')
 @login_required
 @admin_required
-def admin_panel():    flash('Збір успішно видалено.', 'success')
+def admin_panel():
     users = User.query.all()
-    needs = Need.query.all()
-    total_donations = db.session.query(func.sum(Donation.amount)).scalar() or 0 для адмін-панелі
-    dmin')
+    # Query needs including deleted ones for admin view
+    needs = Need.query.order_by(Need.date_created.desc()).all() 
+    total_donations = db.session.query(func.sum(Donation.amount)).scalar() or 0.0
+    
     return render_template('admin_panel.html', 
                           users=users, 
                           needs=needs, 
-                          total_donations=total_donations,y.all()
-                          now=datetime.now())
-tion.amount)).scalar() or 0
+                          total_donations=total_donations,
+                          now=datetime.now()) # Use .now() for local time if needed
+
 # Маршрут для блокування/розблокування користувачів
 @main.route('/admin/toggle_user/<int:user_id>')
 @login_required
-@admin_required   needs=needs, 
-def toggle_user(user_id):                      total_donations=total_donations,
+@admin_required
+def toggle_user(user_id):
     user = User.query.get_or_404(user_id)
     # Перевірка на блокування самого адміністратора
-    if user.is_admin:чів
-        flash('Неможливо заблокувати адміністратора!', 'danger')@main.route('/admin/toggle_user/<int:user_id>')
+    if hasattr(user, 'is_admin') and user.is_admin:
+        flash('Неможливо заблокувати адміністратора!', 'danger')
         return redirect(url_for('main.admin_panel'))
         
-    # Припустимо, ми додали поле is_blocked до моделі User(user_id):
-    user.is_blocked = not user.is_blocked.query.get_or_404(user_id)
-    db.session.commit()амого адміністратора
-    
-    status = "заблоковано" if user.is_blocked else "розблоковано"о заблокувати адміністратора!', 'danger')
-    flash(f'Користувач {user.username} успішно {status}.', 'success')(url_for('main.admin_panel'))
+    # Check if 'is_blocked' attribute exists before toggling
+    if hasattr(user, 'is_blocked'):
+        user.is_blocked = not user.is_blocked
+        db.session.commit()
+        status = "заблоковано" if user.is_blocked else "розблоковано"
+        flash(f'Користувач {user.username} успішно {status}.', 'success')
+    else:
+        flash(f'Атрибут is_blocked не знайдено для користувача {user.username}.', 'warning')
+        
     return redirect(url_for('main.admin_panel'))    
 
-# Маршрут для видалення потреб
-@main.route('/admin/delete_need/<int:need_id>')    db.session.commit()
+# Маршрут для видалення потреб (Admin version - uses delete_need logic)
+@main.route('/admin/delete_need/<int:need_id>', methods=['POST']) # Allow POST for admin delete too
 @login_required
-@admin_requiredse "розблоковано"
-def admin_delete_need(need_id):истувач {user.username} успішно {status}.', 'success')
-    need = Need.query.get_or_404(need_id)rect(url_for('main.admin_panel'))
-    need.deleted = True
-    db.session.commit()
-    
-    flash(f'Потреба "{need.title}" успішно видалена.', 'success')
-    return redirect(url_for('main.admin_panel'))
-admin_delete_need(need_id):
+@admin_required
+def admin_delete_need(need_id):
+    # Re-use the existing delete_need function which now handles admin check
+    return delete_need(need_id) 
+
 # Маршрут для підтвердження потреб
 @main.route('/admin/approve_need/<int:need_id>')
-@login_required    db.session.commit()
+@login_required
 @admin_required
-def approve_need(need_id):лена.', 'success')
-    need = Need.query.get_or_404(need_id)rect(url_for('main.admin_panel'))
-    # Припустимо, ми додали поле is_approved до моделі Need
-    need.is_approved = Trueня потреб
-    db.session.commit()d_id>')
-    
-    flash(f'Потреба "{need.title}" успішно затверджена.', 'success')
-    return redirect(url_for('main.admin_panel'))d):
-need = Need.query.get_or_404(need_id)
-# Маршрут для відхилення потребd
-@main.route('/admin/reject_need/<int:need_id>')
-@login_required    db.session.commit()
-@admin_required
-def reject_need(need_id):cess')
-    need = Need.query.get_or_404(need_id)n.admin_panel'))
-    # Припустимо, ми додали поле is_approved до моделі Need
-    need.is_approved = False
-    db.session.commit()
-    
-    flash(f'Потреба "{need.title}" відхилена.', 'success')
+def approve_need(need_id):
+    need = Need.query.get_or_404(need_id)
+    # Check if 'is_approved' attribute exists
+    if hasattr(need, 'is_approved'):
+        need.is_approved = True
+        db.session.commit()
+        flash(f'Потреба "{need.title}" успішно затверджена.', 'success')
+    else:
+         flash(f'Атрибут is_approved не знайдено для потреби "{need.title}".', 'warning')
+         
     return redirect(url_for('main.admin_panel'))
-d)
-# Оновлюємо логін, щоб встановити is_admin при створенні адміністратора
-# Це треба буде виконати один раз при ініціалізації бази данихlse
+
+# Маршрут для відхилення потреб
+@main.route('/admin/reject_need/<int:need_id>')
+@login_required
+@admin_required
+def reject_need(need_id):
+    need = Need.query.get_or_404(need_id)
+    # Check if 'is_approved' attribute exists
+    if hasattr(need, 'is_approved'):
+        need.is_approved = False
+        db.session.commit()
+        flash(f'Потреба "{need.title}" відхилена.', 'success')
+    else:
+        flash(f'Атрибут is_approved не знайдено для потреби "{need.title}".', 'warning')
+        
+    return redirect(url_for('main.admin_panel'))
+
+# --- Utility Routes / Functions ---
+
+# Route to initialize the first admin user (run once manually if needed)
 @main.route('/initialize_admin')
 def initialize_admin():
     # Перевірка, чи існує адмін
-    admin = User.query.filter_by(username='admin').first()n redirect(url_for('main.admin_panel'))
+    admin = User.query.filter_by(username='admin').first()
     if not admin:
-        admin = User(новити is_admin при створенні адміністратора
-            username='admin',их
-            email='admin@trebaway.com',te('/initialize_admin')
-            password=generate_password_hash('your_secure_password'),
-            name='Admin',н
-            surname='Trebaway',username='admin').first()
-            status='Need',
-            is_admin=True  # Встановлюємо флаг адміністратора
-        )sername='admin',
-        db.session.add(admin)
-        db.session.commit()        password=generate_password_hash('your_secure_password'),
-        flash('Адміністратор успішно створений!', 'success')
-    else:            surname='Trebaway',
-        # Якщо адмін існує, але не має прав, надаємо їх
-        if not admin.is_admin:юємо флаг адміністратора
-            admin.is_admin = True
+        try:
+            admin = User(
+                username='admin',
+                email='admin@trebaway.com', # Use a real email if needed
+                password=generate_password_hash('your_secure_password'), # CHANGE THIS PASSWORD
+                name='Admin',
+                surname='Trebaway',
+                status='Need', # Or another default status
+                is_admin=True # Set admin flag
+            )
+            db.session.add(admin)
             db.session.commit()
-            flash('Права адміністратора оновлені!', 'success')
-        else:    flash('Адміністратор успішно створений!', 'success')
+            flash('Адміністратор успішно створений! Не забудьте змінити пароль.', 'success')
+        except Exception as e:
+             db.session.rollback()
+             flash(f'Помилка при створенні адміністратора: {str(e)}', 'danger')
+             print(f"Admin creation error: {str(e)}")
+    else:
+        # Якщо адмін існує, але не має прав, надаємо їх (optional)
+        if not hasattr(admin, 'is_admin') or not admin.is_admin:
+            try:
+                admin.is_admin = True
+                db.session.commit()
+                flash('Права адміністратора оновлені!', 'success')
+            except Exception as e:
+                 db.session.rollback()
+                 flash(f'Помилка при оновленні прав адміністратора: {str(e)}', 'danger')
+                 print(f"Admin update error: {str(e)}")
+        else:
             flash('Адміністратор вже існує!', 'info')
-    але не має прав, надаємо їх
+    
     return redirect(url_for('main.index'))
- True
-def save_picture(form_picture):ommit()
-    random_hex = secrets.token_hex(8)        flash('Права адміністратора оновлені!', 'success')
+
+# Helper function to save profile pictures
+def save_picture(form_picture):
+    random_hex = secrets.token_hex(8)
     _, f_ext = os.path.splitext(form_picture.filename)
-    picture_fn = random_hex + f_ext            flash('Адміністратор вже існує!', 'info')
+    picture_fn = random_hex + f_ext
     picture_path = os.path.join(current_app.root_path, 'static/profile_pics', picture_fn)
-    ex'))
+    
+    # Ensure directory exists
+    os.makedirs(os.path.dirname(picture_path), exist_ok=True)
+    
     # Resize image
     output_size = (150, 150)
-    i = Image.open(form_picture)
-    i.thumbnail(output_size)_, f_ext = os.path.splitext(form_picture.filename)
-    i.save(picture_path)
-    tic/profile_pics', picture_fn)
+    try:
+        i = Image.open(form_picture)
+        i.thumbnail(output_size)
+        i.save(picture_path)
+    except Exception as e:
+        print(f"Error saving picture: {e}")
+        return None # Indicate error
+        
     return picture_fn
 
-def save_need_image(form_image):
-    random_hex = secrets.token_hex(8)i = Image.open(form_picture)
-    _, f_ext = os.path.splitext(form_image.filename)put_size)
-    image_fn = random_hex + f_ext    i.save(picture_path)
-
-
-
-
-
-
-
-
-
-
-    return image_fn        form_image.save(image_path)    # Save the image        os.makedirs(os.path.dirname(image_path), exist_ok=True)    # Ensure the need_images directory exists        image_path = os.path.join(current_app.root_path, 'static/need_images', image_fn)    
-    return picture_fn
-
+# Helper function to save need images
 def save_need_image(form_image):
     random_hex = secrets.token_hex(8)
     _, f_ext = os.path.splitext(form_image.filename)
@@ -496,6 +557,10 @@ def save_need_image(form_image):
     os.makedirs(os.path.dirname(image_path), exist_ok=True)
     
     # Save the image
-    form_image.save(image_path)
-    
+    try:
+        form_image.save(image_path)
+    except Exception as e:
+        print(f"Error saving need image: {e}")
+        return None # Indicate error
+
     return image_fn
