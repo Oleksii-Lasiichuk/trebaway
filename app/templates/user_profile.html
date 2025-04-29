@@ -58,13 +58,29 @@
             gap: 10px;
         }
 
+        .navbar-avatar img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .default-user-icon {
+            font-size: 40px;
+            color: #5c6642;
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
         .user-name {
             font-weight: 500;
             color: white;
             text-decoration: none;
             transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
         }
 
         .status-badge {
@@ -110,7 +126,7 @@
             justify-content: center;
         }
 
-        .profile-image img {
+        .profile-image-container img {
             width: 100%;
             height: 100%;
             object-fit: cover;
@@ -708,8 +724,17 @@
         </div>
         {% if current_user.is_authenticated %}
             <div class="user-profile">
-                <a href="{{ url_for('main.user_profile', username=current_user.username) }}" class="user-name">@{{ current_user.username }}</a>
-                <div class="status-badge">{{ current_user.status }}</div>
+                <div class="navbar-avatar">
+                    {% if current_user.image %}
+                        <img src="{{ url_for('static', filename='profile_pics/' + current_user.image) }}" alt="{{ current_user.name }}">
+                    {% else %}
+                        <div class="default-user-icon">👤</div>
+                    {% endif %}
+                </div>
+                <div class="user-info">
+                    <a href="{{ url_for('main.user_profile', username=current_user.username) }}" class="user-name">{{ current_user.name }}</a>
+                    <div class="status-badge">{{ current_user.status }}</div>
+                </div>
             </div>
         {% endif %}
     </div>
@@ -721,19 +746,15 @@
             <div class="profile-sidebar">
                 <div class="profile-image-container">
                     {% if user.image %}
-                        <div class="profile-image">
-                            <img src="{{ url_for('static', filename='profile_pics/' + user.image) }}" alt="{{ user.username }}">
-                        </div>
+                        <img src="{{ url_for('static', filename='profile_pics/' + user.image) }}" alt="{{ user.username }}">
                     {% else %}
-                        <div class="profile-image">
-                            <div class="default-user-icon">👤</div>
-                        </div>
+                        <div class="default-user-icon">👤</div>
                     {% endif %}
                 </div>
                 
                 <div class="profile-info">
                     <h2 class="profile-name">{{ user.name }}</h2>
-                    <div class="profile-username">@{{ user.username }}</div>
+                    <div class="profile-username">{{ user.username }}</div>
                     <div class="profile-status">{{ user.status }}</div>
                     
                     <div class="trust-rating">

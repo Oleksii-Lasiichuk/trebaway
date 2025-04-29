@@ -2,7 +2,7 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ТРЕБА | Про нас</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -65,8 +65,17 @@
         </div>
         {% if current_user.is_authenticated %}
             <div class="user-profile">
-                <a href="{{ url_for('main.profile') }}" class="user-name">@{{ current_user.username }}</a>
-                <div class="status-badge">{{ current_user.status }}</div>
+                <div class="navbar-avatar">
+                    {% if current_user.image %}
+                        <img src="{{ url_for('static', filename='profile_pics/' + current_user.image) }}" alt="{{ current_user.name }}">
+                    {% else %}
+                        <div class="default-user-icon">👤</div>
+                    {% endif %}
+                </div>
+                <div class="user-info">
+                    <a href="{{ url_for('main.user_profile', username=current_user.username) }}" class="user-name">{{ current_user.name }}</a>
+                    <div class="status-badge">{{ current_user.status }}</div>
+                </div>
             </div>
         {% endif %}
     </div>
@@ -74,7 +83,7 @@
     <div class="main-content">
         <section class="about-section">
             <div class="about-container">
-                <h1 style="color: white; margin-bottom: 30px; text-align: center; font-size: 2.5rem;">Про ТРЕБА</h1>
+                <h1 style="color: rgb(44, 96, 41); margin-bottom: 30px; text-align: center; font-size: 2.5rem;">Про ТРЕБА</h1>
                 <p style="font-size: 1.1rem; line-height: 1.8; margin-bottom: 40px; text-align: center;">
                     ТРЕБА — це платформа, яка з'єднує захисників України з людьми, які готові допомогти. 
                     Наша місія — забезпечити швидку і прозору допомогу тим, хто її найбільше потребує.

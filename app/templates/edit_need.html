@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ТРЕБА | Редагування потреби</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        /* Copy relevant styles from create_need.html or use shared CSS */
+        :root {
+            --primary-color: #667456; 
+            --secondary-color: #4f5a42;
+            --accent-color: #c5d7b7; 
+            --background-color: #f8f9fa;
+            --light-text: #ffffff;
+            --dark-text: #333333;
+            --border-radius: 15px;
+            --box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        body {
+            background-color: var(--background-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            font-family: 'Poppins', sans-serif;
+            color: var(--dark-text);
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px 40px;
+            background-color: #5c6642; /* Consistent navbar color */
+            color: white;
+            position: relative;
+            width: 100%;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 40px;
+            font-size: 18px;
+        }
+
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        .nav-link:hover {
+            opacity: 0.8;
+        }
+
+        .user-profile {
+            position: absolute;
+            right: 40px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            overflow: hidden;
+            background-color: #e6f0d8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .default-avatar {
+            font-size: 18px;
+            color: #5c6642;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .user-name {
+            font-weight: 500;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+        }
+        .user-name:hover {
+            opacity: 0.8;
+        }
+
+        .status-badge {
+            background-color: #e8f4ff;
+            color: #4a90e2;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 40px 20px;
+        }
+
+        .edit-form-container { /* Renamed from create-form-container */
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: var(--light-text); /* White background */
+            padding: 40px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+
+        .edit-form-container h2 {
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 30px;
+            font-size: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--dark-text);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+            background-color: #fff; /* Ensure white background for inputs */
+        }
+        
+        .form-control:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(102, 116, 86, 0.1);
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .form-error {
+            color: #e74c3c;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+        
+        .form-error span {
+            display: block;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            border: none;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-light {
+            background-color: #f1f1f1;
+            color: var(--dark-text);
+        }
+        .btn-light:hover {
+            background-color: #e0e0e0;
+        }
+
+        .btn-dark {
+            background-color: var(--primary-color);
+            color: var(--light-text);
+        }
+        .btn-dark:hover {
+            background-color: var(--secondary-color);
+        }
+        
+        .current-image-preview {
+            margin-top: 10px;
+            max-width: 200px;
+            max-height: 150px;
+            border-radius: 8px;
+        }
+
+        /* Flash messages styling */
+        .flash-messages {
+            list-style: none;
+            padding: 0;
+            margin-bottom: 20px;
+        }
+        .flash-messages li {
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .alert-warning {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+        }
+        .alert-info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        /* Footer styles */
+        .footer {
+            background-color: var(--primary-color);
+            color: var(--light-text);
+            padding: 40px;
+            margin-top: auto; /* Push to bottom */
+        }
+        .footer-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .footer-logo {
+            font-size: 2.5rem;
+            font-weight: bold;
+        }
+        .footer-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            font-size: 14px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .social-icons {
+            display: flex;
+            gap: 15px;
+        }
+        .social-icon {
+            width: 36px;
+            height: 36px;
+            background-color: rgba(255, 255, 255, 0.2);
+            color: var(--light-text);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        .social-icon a {
+            color: inherit; display: flex; align-items: center; justify-content: center; width: 100%; height: 100%;
+        }
+        .social-icon:hover {
+            background-color: rgba(255, 255, 255, 0.4);
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 768px) {
+            .navbar { flex-direction: column; padding: 15px; }
+            .nav-links { flex-wrap: wrap; justify-content: center; gap: 15px; margin-bottom: 15px; }
+            .user-profile { position: static; margin-top: 15px; justify-content: center; width: 100%; }
+            .main-content { padding: 20px; }
+            .edit-form-container { padding: 20px; }
+            .edit-form-container h2 { font-size: 1.8rem; }
+            .form-actions { flex-direction: column; gap: 10px; }
+            .btn { width: 100%; }
+            .footer-bottom { flex-direction: column; align-items: center; gap: 15px; text-align: center; }
+            .social-icons { order: -1; margin-bottom: 10px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <div class="nav-links">
+            <a href="{{ url_for('main.about') }}" class="nav-link">Про нас</a>
+            <a href="{{ url_for('main.index') }}" class="nav-link">Головна</a>
+            <a href="{{ url_for('main.needs') }}" class="nav-link">Потреби</a>
+            {% if current_user.is_authenticated %}
+                <a href="{{ url_for('main.create_need') }}" class="nav-link">Створити потребу</a>
+                <a href="{{ url_for('main.profile') }}" class="nav-link">Профіль</a>
+                <a href="{{ url_for('main.logout') }}" class="nav-link">Вийти</a>
+            {% else %}
+                <a href="{{ url_for('main.login') }}" class="nav-link">Увійти</a>
+                <a href="{{ url_for('main.register') }}" class="nav-link">Зареєструватися</a>
+            {% endif %}
+        </div>
+        {% if current_user.is_authenticated %}
+            <div class="user-profile">
+                <div class="user-avatar">
+                    {% if current_user.image %}
+                        <img src="{{ url_for('static', filename='profile_pics/' + current_user.image) }}" alt="{{ current_user.username }}">
+                    {% else %}
+                        <div class="default-avatar">👤</div>
+                    {% endif %}
+                </div>
+                <a href="{{ url_for('main.user_profile', username=current_user.username) }}" class="user-name">{{ current_user.username }}</a>
+                <div class="status-badge">{{ current_user.status }}</div>
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="main-content">
+        <div class="edit-form-container">
+            <h2>Редагування потреби</h2>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <ul class="flash-messages">
+                    {% for category, message in messages %}
+                        <li class="alert alert-{{ category }}">{{ message }}</li>
+                    {% endfor %}
+                    </ul>
+                {% endif %}
+            {% endwith %}
+            
+            <form method="POST" action="" enctype="multipart/form-data">
+                {{ form.hidden_tag() }}
+                
+                <div class="form-group">
+                    {{ form.title.label }}
+                    {{ form.title(class="form-control") }}
+                    {% if form.title.errors %}
+                        <div class="form-error">
+                            {% for error in form.title.errors %}<span>{{ error }}</span>{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    {{ form.description.label }}
+                    {{ form.description(class="form-control", rows=5) }}
+                    {% if form.description.errors %}
+                        <div class="form-error">
+                            {% for error in form.description.errors %}<span>{{ error }}</span>{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    {{ form.category.label }}
+                    {{ form.category(class="form-control") }}
+                    {% if form.category.errors %}
+                        <div class="form-error">
+                            {% for error in form.category.errors %}<span>{{ error }}</span>{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    {{ form.region.label }}
+                    {{ form.region(class="form-control") }}
+                    {% if form.region.errors %}
+                        <div class="form-error">
+                            {% for error in form.region.errors %}<span>{{ error }}</span>{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    {{ form.location.label }}
+                    {{ form.location(class="form-control") }}
+                    {% if form.location.errors %}
+                        <div class="form-error">
+                            {% for error in form.location.errors %}<span>{{ error }}</span>{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    {{ form.urgency.label }}
+                    {{ form.urgency(class="form-control") }}
+                    {% if form.urgency.errors %}
+                        <div class="form-error">
+                            {% for error in form.urgency.errors %}<span>{{ error }}</span>{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    {{ form.target_amount.label }}
+                    {{ form.target_amount(class="form-control") }}
+                    {% if form.target_amount.errors %}
+                        <div class="form-error">
+                            {% for error in form.target_amount.errors %}<span>{{ error }}</span>{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group">
+                    {{ form.collected_amount.label }}
+                    {{ form.collected_amount(class="form-control") }}
+                    {% if form.collected_amount.errors %}
+                        <div class="form-error">
+                            {% for error in form.collected_amount.errors %}<span>{{ error }}</span>{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    {{ form.image.label }}
+                    {% if need.image_url %}
+                        <div>
+                            <p>Поточне зображення:</p>
+                            <img src="{{ url_for('static', filename='need_images/' + need.image_url) }}" alt="Поточне зображення" class="current-image-preview">
+                        </div>
+                    {% endif %}
+                    {{ form.image(class="form-control-file") }} <!-- Use form-control-file or similar class if defined -->
+                    {% if form.image.errors %}
+                        <div class="form-error">
+                            {% for error in form.image.errors %}<span>{{ error }}</span>{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-actions">
+                    <a href="{{ url_for('main.need_detail', need_id=need.id) }}" class="btn btn-light">Скасувати</a>
+                    {{ form.submit(class="btn btn-dark") }} <!-- Submit button text is now 'Зберегти' from form definition -->
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="footer">
+        <div class="footer-top">
+            <div class="footer-logo">ТРЕБА</div>
+        </div>
+        <div class="footer-bottom">
+             <div class="social-icons">
+                 <a href="#" class="social-icon"><i class="fab fa-facebook-f"></i></a>
+                 <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
+                 <a href="#" class="social-icon"><i class="fab fa-telegram"></i></a>
+             </div>
+            <div>&copy; ТРЕБА {{ now.year if now else '' }}</div>
+        </div>
+    </div>
+</body>
+</html>

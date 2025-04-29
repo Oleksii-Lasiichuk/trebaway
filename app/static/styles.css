@@ -136,52 +136,131 @@ a:hover {
     right: 40px;
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px; /* Increased gap for better spacing */
+}
+
+/* Ensure navbar avatar is perfectly circular */
+.navbar-avatar {
+    width: 36px;
+    height: 36px;
+    background-color: #e6f0d8;
+    overflow: hidden; /* Crucial for containing the image */
+    border-radius: 50%; /* Makes the container circular */
+    aspect-ratio: 1 / 1; /* Enforces a square aspect ratio before border-radius */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0; /* Prevent shrinking */
+}
+
+.navbar-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Ensures the image covers the area, might crop */
+    border-radius: 50%; /* Ensures the image itself is clipped circularly if needed */
+}
+
+.default-user-icon {
+    font-size: 20px; /* Adjusted size */
+    color: #5c6642;
+}
+
+.user-info {
+    display: flex;
+    flex-direction: column; /* Stack name and status vertically */
+    align-items: flex-start; /* Align text to the left */
 }
 
 .user-name {
     font-weight: 500;
-    color: var(--primary-color);
+    color: var(--primary-color); /* Use primary color for name */
     text-decoration: none;
     transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
+    font-size: 14px; /* Adjusted font size */
+    line-height: 1.2; /* Adjust line height */
 }
 
 .user-name:hover {
-    color: var(--secondary-color);
-    transform: translateY(-2px);
-}
-
-.user-name:after {
-    content: '👤';
-    margin-left: 5px;
-    font-size: 14px;
+    color: var(--secondary-color); /* Darker on hover */
 }
 
 .status-badge {
     background-color: #e8f4ff;
     color: #4a90e2;
-    padding: 3px 8px;
+    padding: 2px 6px; /* Adjusted padding */
     border-radius: 4px;
-    font-size: 12px;
+    font-size: 11px; /* Adjusted font size */
     font-weight: 500;
+    line-height: 1; /* Adjust line height */
+    margin-top: 2px; /* Add small space between name and badge */
 }
 
-.cta-button {
-    padding: 10px 20px;
-    background-color: #4a90e2;
-    color: white;
-    text-decoration: none;
-    border-radius: 8px;
-    font-weight: 500;
-    transition: all 0.3s;
+/* Profile image fixes - ensure perfect circles globally */
+.profile-image-container,
+.profile-image,
+.member-photo {
+    width: 150px; /* Ensure consistent size or use specific classes */
+    height: 150px;
+    overflow: hidden; /* Essential */
+    border-radius: 50%; /* Essential */
+    aspect-ratio: 1 / 1; /* Essential */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #e6f0d8; /* Background for default */
+    margin: 0 auto 20px; /* Center horizontally, add bottom margin */
 }
 
-.cta-button:hover {
-    background-color: #3672c0;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+/* Target images within profile containers */
+.profile-image-container img,
+.profile-image img,
+.member-photo img,
+.avatar-image { /* Include .avatar-image used in profile.html */
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Essential */
+    border-radius: 50%; /* Redundant but safe */
+}
+
+/* Default icon styling within profile containers */
+.profile-image-container .default-user-icon,
+.profile-image .default-user-icon {
+    font-size: 70px; /* Larger icon for profile page */
+    color: #5c6642;
+}
+
+/* Responsive adjustments for user profile in navbar */
+@media (max-width: 768px) {
+    .user-profile {
+        position: static;
+        margin-top: 15px;
+        justify-content: center;
+        width: 100%;
+        gap: 15px; /* Adjust gap for mobile */
+    }
+
+    .user-info {
+        align-items: center; /* Center text in mobile view */
+    }
+}
+
+/* Ensure profile image on user_profile.html is circular */
+.profile-sidebar .profile-image-container {
+    width: 150px; /* Explicit size */
+    height: 150px;
+    margin: 0 auto 20px; /* Center and add margin */
+}
+
+.profile-sidebar .profile-image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.profile-sidebar .default-user-icon {
+    font-size: 70px;
+    color: #5c6642;
 }
 
 /* Hero Section */
@@ -708,6 +787,11 @@ a:hover {
     height: 280px;
     background-color: #f0f0f0;
     overflow: hidden;
+    border-radius: 50%;
+    aspect-ratio: 1/1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .member-photo img {
@@ -1349,6 +1433,8 @@ a:hover {
     .user-profile {
         position: static;
         margin-top: 15px;
+        justify-content: center;
+        width: 100%;
     }
     
     .nav-links {
