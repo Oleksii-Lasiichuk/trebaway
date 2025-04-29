@@ -68,25 +68,48 @@
             gap: 10px;
         }
 
-        .user-name {
-            font-family: 'Poppins', sans-serif;
-            font-weight: 500;
-            color: var(--primary-color);
-            text-decoration: none;
-            transition: all 0.3s ease;
+        .navbar-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            overflow: hidden;
+            background-color: #e6f0d8;
             display: flex;
             align-items: center;
+            justify-content: center;
+        }
+        
+        .navbar-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .default-user-icon {
+            font-size: 18px;
+            color: #5c6642;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .user-name {
+            font-weight: 500;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s ease;
         }
 
         .user-name:hover {
-            color: var(--secondary-color);
-            transform: translateY(-2px);
-        }
-
-        .user-name:after {
-            content: '👤';
-            margin-left: 5px;
-            font-size: 14px;
+            opacity: 0.8;
         }
 
         .status-badge {
@@ -471,6 +494,10 @@
                 width: 100%;
             }
             
+            .user-info {
+                align-items: center;
+            }
+            
             .main-content {
                 padding: 20px;
             }
@@ -527,8 +554,17 @@
         </div>
         {% if current_user.is_authenticated %}
             <div class="user-profile">
-                <a href="{{ url_for('main.profile') }}" class="user-name">@{{ current_user.username }}</a>
-                <div class="status-badge">{{ current_user.status }}</div>
+                <div class="navbar-avatar">
+                    {% if current_user.image %}
+                        <img src="{{ url_for('static', filename='profile_pics/' + current_user.image) }}" alt="{{ current_user.name }}">
+                    {% else %}
+                        <div class="default-user-icon">👤</div>
+                    {% endif %}
+                </div>
+                <div class="user-info">
+                    <a href="{{ url_for('main.user_profile', username=current_user.username) }}" class="user-name">{{ current_user.name }}</a>
+                    <div class="status-badge">{{ current_user.status }}</div>
+                </div>
             </div>
         {% endif %}
     </div>

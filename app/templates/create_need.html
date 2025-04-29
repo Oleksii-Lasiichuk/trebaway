@@ -51,6 +51,22 @@
             gap: 10px;
         }
 
+        .navbar-avatar img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+        }
+
+        .default-user-icon {
+            font-size: 40px;
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
         .user-name {
             font-weight: 500;
             color: white;
@@ -301,8 +317,17 @@
         </div>
         {% if current_user.is_authenticated %}
             <div class="user-profile">
-                <a href="{{ url_for('main.profile') }}" class="user-name">@{{ current_user.username }}</a>
-                <div class="status-badge">{{ current_user.status }}</div>
+                <div class="navbar-avatar">
+                    {% if current_user.image %}
+                        <img src="{{ url_for('static', filename='profile_pics/' + current_user.image) }}" alt="{{ current_user.name }}">
+                    {% else %}
+                        <div class="default-user-icon">👤</div>
+                    {% endif %}
+                </div>
+                <div class="user-info">
+                    <a href="{{ url_for('main.user_profile', username=current_user.username) }}" class="user-name">{{ current_user.name }}</a>
+                    <div class="status-badge">{{ current_user.status }}</div>
+                </div>
             </div>
         {% endif %}
     </div>
