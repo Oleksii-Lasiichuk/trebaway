@@ -535,6 +535,29 @@
             display: flex;
             align-items: center;
         }
+
+        .back-to-top {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            background-color: #5c6642;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .back-to-top.show {
+            opacity: 1;
+            visibility: visible;
+        }
     </style>
 </head>
 <body>
@@ -643,11 +666,41 @@
         </div>
         <div class="footer-bottom">
             <div class="social-icons">
-                <div class="social-icon"><a href="https://www.instagram.com/neoldter/"><i class="fab fa-facebook-f"></i></a></div>
-                <div class="social-icon"><i class="fab fa-instagram"></i></div>
+                <a href="https://www.facebook.com/" target="_blank" rel="noopener noreferrer" class="social-icon">
+                    <i class="fab fa-facebook-f"></i>
+                </a>
+                <a href="https://www.instagram.com/neoldter/" target="_blank" rel="noopener noreferrer" class="social-icon">
+                    <i class="fab fa-instagram"></i>
+                </a>
             </div>
-            <div>Launched in {{ now.year }}</div>
+            <div>launched in {{ now.year }}</div>
         </div>
     </div>
+    
+    <!-- Кнопка "повернутися вгору" -->
+    <div class="back-to-top" id="backToTop">
+        <i class="fas fa-arrow-up"></i>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const backToTopButton = document.getElementById('backToTop');
+            
+            window.addEventListener('scroll', function() {
+                if (window.scrollY > 300) {
+                    backToTopButton.classList.add('show');
+                } else {
+                    backToTopButton.classList.remove('show');
+                }
+            });
+            
+            backToTopButton.addEventListener('click', function() {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
 </body>
 </html>

@@ -525,6 +525,35 @@
                 justify-content: center;
             }
         }
+
+        /* Back to top button */
+        .back-to-top {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            background-color: var(--primary-color);
+            color: var(--light-text);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s;
+        }
+
+        .back-to-top.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .back-to-top:hover {
+            background-color: var(--secondary-color);
+        }
     </style>
 </head>
 
@@ -630,11 +659,43 @@
         </div>
         <div class="footer-bottom">
             <div class="social-icons">
-                <div class="social-icon"><i class="fab fa-facebook-f"></i></div>
-                <div class="social-icon"><i class="fab fa-instagram"></i></div>
+                <a href="https://www.facebook.com/" target="_blank" rel="noopener noreferrer" class="social-icon">
+                    <i class="fab fa-facebook-f"></i>
+                </a>
+                <a href="https://www.instagram.com/neoldter/" target="_blank" rel="noopener noreferrer" class="social-icon">
+                    <i class="fab fa-instagram"></i>
+                </a>
             </div>
             <div>launched in {{ now.year }}</div>
         </div>
     </footer>
+    
+    <!-- Кнопка "повернутися вгору" -->
+    <div class="back-to-top" id="backToTop">
+        <i class="fas fa-arrow-up"></i>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const backToTopButton = document.getElementById('backToTop');
+            
+            // Показувати кнопку, коли користувач прокручує сторінку вниз на 300px
+            window.addEventListener('scroll', function() {
+                if (window.scrollY > 300) {
+                    backToTopButton.classList.add('show');
+                } else {
+                    backToTopButton.classList.remove('show');
+                }
+            });
+            
+            // Плавне прокручування догори при натисканні кнопки
+            backToTopButton.addEventListener('click', function() {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
 </body>
 </html>

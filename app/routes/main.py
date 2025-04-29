@@ -334,52 +334,57 @@ def user_profile(username):
 @main.route('/rate_user/<int:user_id>', methods=['POST'])
 @login_required
 def rate_user(user_id):
-    # Ensure the user is not rating themselves
-    if current_user.id == user_id:
-        flash('Ви не можете оцінити самі себе!', 'danger')
-        return redirect(url_for('main.index'))
+    # Отримуємо значення рейтингу та відгуку з форми
+    rating = request.form.get('rating', type=int)
+    review = request.form.get('review', '')
     
+    # Перевірка чи валідне значення рейтингу
+    if not rating or rating < 1 or rating > 5:
+        flash('Некоректне значення рейтингу', 'danger')
+        return redirect(request.referrer or url_for('main.index'))
+    
+    # Перевірка, що користувач не оцінює сам себе
+    if current_user.id == user_id:
+        flash('Ви не можете оцінювати самого себе', 'danger')
+        return redirect(request.referrer or url_for('main.index'))
+        
+    # Перевірка, чи існує користувач
     user = User.query.get_or_404(user_id)
     
-    # Check if user has already rated this user
+    # Перевіряємо, чи існує вже оцінка від цього користувача
     existing_rating = Rating.query.filter_by(
         rater_id=current_user.id, 
         rated_user_id=user_id
     ).first()
     
-    try:
-        rating_value = int(request.form.get('rating'))
-        review_text = request.form.get('review', '').strip() # Get review text, default to empty string
-
-        if not (1 <= rating_value <= 5):
-             flash('Оцінка повинна бути від 1 до 5.', 'danger')
-             return redirect(url_for('main.user_profile', username=user.username))
-
-        if existing_rating:
-            # Update existing rating (optional, if you allow re-rating)
-            # existing_rating.rating = rating_value
-            # existing_rating.review = review_text
-            # flash('Ваша оцінка була оновлена!', 'success')
-            flash('Ви вже оцінили цього користувача.', 'info')
-        else:
-            # Create new rating
-            new_rating = Rating(
-                rating=rating_value,
-                review=review_text,
-                rater_id=current_user.id,
-                rated_user_id=user.id
-            )
-            db.session.add(new_rating)
-            flash('Дякуємо за вашу оцінку!', 'success')
+    if existing_rating:
+        # Оновлюємо існуючий рейтинг
+        existing_rating.rating = rating
+        existing_rating.review = review
+        existing_rating.date_created = datetime.utcnow()  # Оновлюємо дату редагування
         
+        # Встановлюємо повідомлення про успішне оновлення
+        message = 'Оцінку успішно оновлено'
+    else:
+        # Створюємо новий рейтинг
+        new_rating = Rating(
+            rater_id=current_user.id,
+            rated_user_id=user_id,
+            rating=rating,
+            review=review
+        )
+        db.session.add(new_rating)
+        message = 'Дякуємо за вашу оцінку!'
+    
+    # Зберігаємо зміни в базі даних
+    try:
         db.session.commit()
-    except ValueError:
-        flash('Невірне значення оцінки.', 'danger')
+        flash(message, 'success')
     except Exception as e:
         db.session.rollback()
-        flash('Помилка при збереженні оцінки.', 'danger')
-        print(f"Rating error: {str(e)}") # Log the error
-        
+        flash(f'Помилка при збереженні оцінки: {str(e)}', 'danger')
+    
+    # Повертаємось на сторінку користувача
     return redirect(url_for('main.user_profile', username=user.username))
 
 @main.route('/delete_need/<int:need_id>', methods=['POST'])

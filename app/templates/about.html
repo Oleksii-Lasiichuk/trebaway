@@ -46,6 +46,352 @@
                 justify-content: center;
             }
         }
+
+        /* Покращений дизайн сторінки про нас */
+        .about-section {
+            position: relative;
+            padding: 30px 0;
+            background-color: rgba(197, 215, 183, 0.2);
+            border-radius: 20px;
+            margin-bottom: 40px;
+        }
+
+        .about-container {
+            position: relative;
+            z-index: 2;
+            padding: 20px;
+        }
+
+        .team-section {
+            background-color: #f8f9fa;
+            padding: 40px 20px;
+            border-radius: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .team-section::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 200px;
+            background: linear-gradient(135deg, rgba(197, 215, 183, 0.3) 0%, rgba(102, 116, 86, 0.1) 100%);
+            border-radius: 20px 20px 0 0;
+        }
+
+        .team-container {
+            position: relative;
+            z-index: 2;
+        }
+
+        .team-header {
+            text-align: center;
+            margin-bottom: 50px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .team-title {
+            color: #667456;
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+
+        .team-subtitle {
+            color: #555;
+            line-height: 1.7;
+        }
+
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 40px;
+            margin-top: 40px;
+        }
+
+        .team-member {
+            background-color: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+        }
+
+        .team-member:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .team-member::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, #667456, #c5d7b7);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+            transform-origin: left;
+        }
+
+        .team-member:hover::after {
+            transform: scaleX(1);
+        }
+
+        .member-photo {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin: 0 auto 20px;
+            position: relative;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border: 5px solid #f8f9fa;
+            transition: all 0.3s ease;
+        }
+
+        .team-member:hover .member-photo {
+            transform: scale(1.05);
+            border-color: #c5d7b7;
+        }
+
+        .member-photo > div {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(45deg, #667456, #4f5a42);
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .member-photo > div::after {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                transparent, 
+                rgba(255, 255, 255, 0.1), 
+                transparent
+            );
+            transform: rotate(45deg);
+            animation: shine 6s infinite linear;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .team-member:hover .member-photo > div::after {
+            opacity: 1;
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) rotate(45deg); }
+        }
+
+        .member-info {
+            padding-top: 10px;
+        }
+
+        .member-name {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: #667456;
+        }
+
+        .member-role {
+            font-size: 16px;
+            font-weight: 500;
+            color: #21733c;
+            margin-bottom: 15px;
+            padding: 5px 15px;
+            background-color: rgba(74, 144, 226, 0.1);
+            border-radius: 20px;
+            display: inline-block;
+        }
+
+        .member-bio {
+            font-size: 15px;
+            line-height: 1.6;
+            color: #555;
+            margin-top: 15px;
+        }
+
+        /* Персоналізовані іконки для членів команди */
+        .member-icon-oleksii {
+            position: relative;
+            font-size: 5rem;
+        }
+        
+        .member-icon-oleksii::after {
+            content: "🧑‍💻";
+            position: absolute;
+            font-size: 2.5rem;
+            bottom: -10px;
+            right: -10px;
+        }
+
+        .member-icon-sofia {
+            position: relative;
+            font-size: 5rem;
+        }
+        
+        .member-icon-sofia::after {
+            content: "🎨";
+            position: absolute;
+            font-size: 2.5rem;
+            bottom: -10px;
+            right: -10px;
+        }
+
+        .member-icon-tanya {
+            position: relative;
+            font-size: 5rem;
+        }
+        
+        .member-icon-tanya::after {
+            content: "📊";
+            position: absolute;
+            font-size: 2.5rem;
+            bottom: -10px;
+            right: -10px;
+        }
+
+        .member-icon-oleksandr {
+            position: relative;
+            font-size: 5rem;
+        }
+        
+        .member-icon-oleksandr::after {
+            content: "🔒";
+            position: absolute;
+            font-size: 2.5rem;
+            bottom: -10px;
+            right: -10px;
+        }
+
+        .mission-section {
+            background-color: rgba(102, 116, 86, 0.05);
+            padding: 50px 20px;
+            border-radius: 20px;
+            margin-top: 50px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mission-section::before, .mission-section::after {
+            content: "";
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            z-index: 0;
+        }
+
+        .mission-section::before {
+            background-color: rgba(197, 215, 183, 0.2);
+            top: -100px;
+            left: -100px;
+        }
+
+        .mission-section::after {
+            background-color: rgba(197, 215, 183, 0.15);
+            bottom: -100px;
+            right: -100px;
+        }
+
+        .mission-container {
+            position: relative;
+            z-index: 1;
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .mission-title {
+            color: #667456;
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+            position: relative;
+            display: inline-block;
+        }
+
+        .mission-title::after {
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            left: 25%;
+            width: 50%;
+            height: 4px;
+            background: linear-gradient(90deg, transparent, #667456, transparent);
+        }
+
+        .mission-text {
+            font-size: 1.2rem;
+            line-height: 1.8;
+            color: #444;
+        }
+
+        /* Виправлення для соціальних іконок */
+        .social-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            color: white;
+            text-decoration: none;
+        }
+        
+        .social-icon:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-3px);
+        }
+
+        /* Стилі для кнопки "повернутися вгору" */
+        .back-to-top {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            background-color: #667456;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .back-to-top.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .back-to-top i {
+            font-size: 1.5rem;
+        }
     </style>
 </head>
 <body>
@@ -83,7 +429,7 @@
     <div class="main-content">
         <section class="about-section">
             <div class="about-container">
-                <h1 style="color: rgb(44, 96, 41); margin-bottom: 30px; text-align: center; font-size: 2.5rem;">Про ТРЕБА</h1>
+                <h1 style="color: #667456; margin-bottom: 30px; text-align: center; font-size: 2.5rem;">Про ТРЕБА</h1>
                 <p style="font-size: 1.1rem; line-height: 1.8; margin-bottom: 40px; text-align: center;">
                     ТРЕБА — це платформа, яка з'єднує захисників України з людьми, які готові допомогти. 
                     Наша місія — забезпечити швидку і прозору допомогу тим, хто її найбільше потребує.
@@ -105,8 +451,8 @@
                 <div class="team-grid">
                     <div class="team-member">
                         <div class="member-photo">
-                            <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background-color: var(--primary-color); color: white;">
-                                <i class="fas fa-laptop-code" style="font-size: 5rem;"></i>
+                            <div>
+                                <i class="fas fa-laptop-code member-icon-oleksii"></i>
                             </div>
                         </div>
                         <div class="member-info">
@@ -122,8 +468,8 @@
                     
                     <div class="team-member">
                         <div class="member-photo">
-                            <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background-color: var(--primary-color); color: white;">
-                                <i class="fas fa-paint-brush" style="font-size: 5rem;"></i>
+                            <div>
+                                <i class="fas fa-paint-brush member-icon-sofia"></i>
                             </div>
                         </div>
                         <div class="member-info">
@@ -139,8 +485,8 @@
                     
                     <div class="team-member">
                         <div class="member-photo">
-                            <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background-color: var(--primary-color); color: white;">
-                                <i class="fas fa-tasks" style="font-size: 5rem;"></i>
+                            <div>
+                                <i class="fas fa-tasks member-icon-tanya"></i>
                             </div>
                         </div>
                         <div class="member-info">
@@ -156,8 +502,8 @@
                     
                     <div class="team-member">
                         <div class="member-photo">
-                            <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background-color: var(--primary-color); color: white;">
-                                <i class="fas fa-database" style="font-size: 5rem;"></i>
+                            <div>
+                                <i class="fas fa-database member-icon-oleksandr"></i>
                             </div>
                         </div>
                         <div class="member-info">
@@ -193,11 +539,41 @@
         </div>
         <div class="footer-bottom">
             <div class="social-icons">
-                <div class="social-icon"><i class="fab fa-facebook-f"></i></div>
-                <div class="social-icon"><i class="fab fa-instagram"></i></div>
+                <a href="https://www.facebook.com/" target="_blank" rel="noopener noreferrer" class="social-icon">
+                    <i class="fab fa-facebook-f"></i>
+                </a>
+                <a href="https://www.instagram.com/neoldter/" target="_blank" rel="noopener noreferrer" class="social-icon">
+                    <i class="fab fa-instagram"></i>
+                </a>
             </div>
             <div>launched in {{ now.year }}</div>
         </div>
     </div>
+    
+    <!-- Кнопка "повернутися вгору" -->
+    <div class="back-to-top" id="backToTop">
+        <i class="fas fa-arrow-up"></i>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const backToTopButton = document.getElementById('backToTop');
+            
+            window.addEventListener('scroll', function() {
+                if (window.scrollY > 300) {
+                    backToTopButton.classList.add('show');
+                } else {
+                    backToTopButton.classList.remove('show');
+                }
+            });
+            
+            backToTopButton.addEventListener('click', function() {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
 </body>
 </html>

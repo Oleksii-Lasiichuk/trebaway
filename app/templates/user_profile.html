@@ -941,19 +941,22 @@
         </div>
         <div class="footer-bottom">
             <div class="social-icons">
-                <div class="social-icon"><a href="https://www.facebook.com/" target="_blank"><i class="fab fa-facebook-f"></i></a></div>
-                <div class="social-icon"><a href="https://www.instagram.com/neoldter/" target="_blank"><i class="fab fa-instagram"></i></a></div>
-                <div class="social-icon"><a href="https://t.me/" target="_blank"><i class="fab fa-telegram"></i></a></div>
+                <a href="https://www.facebook.com/" target="_blank" rel="noopener noreferrer" class="social-icon">
+                    <i class="fab fa-facebook-f"></i>
+                </a>
+                <a href="https://www.instagram.com/neoldter/" target="_blank" rel="noopener noreferrer" class="social-icon">
+                    <i class="fab fa-instagram"></i>
+                </a>
             </div>
             <div>launched in {{ now.year }}</div>
         </div>
     </div>
-
+    
     <div class="back-to-top" id="backToTop">
         <i class="fas fa-arrow-up"></i>
     </div>
-
-    <!-- Додаємо модальне вікно для оцінювання користувача -->
+    
+    <!-- Модальне вікно для оцінки користувача -->
     <div id="ratingModal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
@@ -975,7 +978,7 @@
                     <textarea name="review" id="review" rows="4" placeholder="Напишіть свій відгук про користувача...">{{ user_rating.review if user_rating else '' }}</textarea>
                 </div>
                 
-                <button type="submit" class="submit-rating-btn">Підтвердити оцінку</button>
+                <button type="submit" class="submit-rating-btn">Зберегти оцінку</button>
             </form>
         </div>
     </div>
@@ -1000,6 +1003,8 @@
             if (editRatingBtn) {
                 editRatingBtn.onclick = function() {
                     modal.style.display = "block";
+                    // Переконаймося, що початкові зірки відображаються правильно
+                    updateStars({{ user_rating.rating if user_rating else 0 }});
                 }
             }
             
@@ -1024,28 +1029,26 @@
                     ratingInput.value = value;
                     
                     // Update visual selection
-                    starSelects.forEach(s => {
-                        const starValue = parseInt(s.getAttribute('data-value'));
-                        if (starValue <= value) {
-                            s.innerHTML = '<i class="fas fa-star"></i>';
-                            s.classList.add('star-selected');
-                        } else {
-                            s.innerHTML = '<i class="far fa-star"></i>';
-                            s.classList.remove('star-selected');
-                        }
-                    });
+                    updateStars(value);
                 });
             });
             
-            // Set initial stars based on existing rating if present
-            if (ratingInput.value > 0) {
+            function updateStars(value) {
                 starSelects.forEach(s => {
                     const starValue = parseInt(s.getAttribute('data-value'));
-                    if (starValue <= ratingInput.value) {
+                    if (starValue <= value) {
                         s.innerHTML = '<i class="fas fa-star"></i>';
                         s.classList.add('star-selected');
+                    } else {
+                        s.innerHTML = '<i class="far fa-star"></i>';
+                        s.classList.remove('star-selected');
                     }
                 });
+            }
+            
+            // Set initial stars based on existing rating if present
+            if (ratingInput.value > 0) {
+                updateStars(ratingInput.value);
             }
             
             // Back to top functionality
