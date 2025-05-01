@@ -6,11 +6,11 @@ from flask_login import current_user
 from app.models import User
 
 class RegistrationForm(FlaskForm):
-    name = StringField('Імʼя', validators=[DataRequired()])
-    surname = StringField('Прізвище', validators=[DataRequired()])
-    username = StringField('Імʼя користувача', validators=[DataRequired()])
-    email = StringField('Email', validators=[DataRequired(), Email()])
-    password = PasswordField('Пароль', validators=[DataRequired()])
+    name = StringField('Імʼя', validators=[DataRequired(), Length(min=2, max=50)])
+    surname = StringField('Прізвище', validators=[DataRequired(), Length(min=2, max=50)])
+    username = StringField('Імʼя користувача', validators=[DataRequired(), Length(min=3, max=25)])
+    email = StringField('Email', validators=[DataRequired(), Email(), Length(max=120)])
+    password = PasswordField('Пароль', validators=[DataRequired(), Length(min=6, max=60)])
     confirm = PasswordField('Повторіть пароль', validators=[DataRequired(), EqualTo('password')])
     status = SelectField('Тип користувача', choices=[('Donor', 'Донор'), ('Need', 'Потребую допомоги')], default='Donor')
     submit = SubmitField('Зареєструватися')
@@ -26,13 +26,13 @@ class RegistrationForm(FlaskForm):
             raise ValidationError('Ця електронна пошта вже зареєстрована. Будь ласка, використайте іншу.')
 
 class LoginForm(FlaskForm):
-    email = StringField('Email', validators=[DataRequired(), Email()])
-    password = PasswordField('Пароль', validators=[DataRequired()])
+    email = StringField('Email', validators=[DataRequired(), Email(), Length(max=120)])
+    password = PasswordField('Пароль', validators=[DataRequired(), Length(min=6, max=60)])
     submit = SubmitField('Увійти')
 
 class NeedForm(FlaskForm):
-    title = StringField('Назва потреби', validators=[DataRequired()])
-    description = TextAreaField('Опис', validators=[DataRequired()])
+    title = StringField('Назва потреби', validators=[DataRequired(), Length(min=5, max=100)])
+    description = TextAreaField('Опис', validators=[DataRequired(), Length(min=10, max=1500)])
     goal = FloatField('Необхідна сума', validators=[DataRequired()])
     region = SelectField('Область', choices=[
         ('', 'Виберіть область'),
@@ -61,14 +61,14 @@ class NeedForm(FlaskForm):
         ('chernivtsi', 'Чернівецька'),
         ('chernihiv', 'Чернігівська'),
     ])
-    location = StringField('Місце розташування')
+    location = StringField('Місце розташування', validators=[Length(max=100)])
     urgency = SelectField('Терміновість', choices=[
         ('Normal', 'Звичайна'), 
         ('Urgent', 'Термінова'), 
         ('Critical', 'Критична')
     ])
-    monobank_url = StringField('Посилання на MonoBank', validators=[Optional(), URL(message='Будь ласка, введіть правильну URL адресу')])
-    image = FileField('Зображення')
+    monobank_url = StringField('Посилання на MonoBank', validators=[Optional(), URL(message='Будь ласка, введіть правильну URL адресу'), Length(max=500)])
+    image = FileField('Зображення', validators=[FileAllowed(['jpg', 'png', 'jpeg'])])
     submit = SubmitField('Створити')
 
 class DonationForm(FlaskForm):
@@ -88,9 +88,9 @@ class DonationForm(FlaskForm):
 
 class UpdateProfileForm(FlaskForm):
     name = StringField('Повне ім\'я', validators=[Length(min=2, max=100)])
-    username = StringField('Ім\'я користувача', validators=[DataRequired(), Length(min=2, max=20)])
-    email = StringField('Email', validators=[DataRequired(), Email()])
-    bio = TextAreaField('Про мене', validators=[Length(max=500)])
+    username = StringField('Ім\'я користувача', validators=[DataRequired(), Length(min=3, max=25)])
+    email = StringField('Email', validators=[DataRequired(), Email(), Length(max=120)])
+    bio = TextAreaField('Про мене', validators=[Length(max=1500)])
     phone = StringField('Телефон', validators=[Length(max=20)])
     location = StringField('Місто', validators=[Length(max=100)])
     image = FileField('Фото профілю', validators=[FileAllowed(['jpg', 'png', 'jpeg'])])
@@ -107,3 +107,13 @@ class UpdateProfileForm(FlaskForm):
             user = User.query.filter_by(email=email.data).first()
             if user:
                 raise ValidationError('Цей email вже зареєстрований. Будь ласка, використайте інший.')
+
+class ReviewForm(FlaskForm):
+    rating = FloatField('Рейтинг', validators=[DataRequired()])
+    review = TextAreaField('Відгук', validators=[Optional(), Length(max=500)])
+    submit = SubmitField('Зберегти відгук')
+
+class RatingForm(FlaskForm):
+    rating = FloatField('Рейтинг', validators=[DataRequired()])
+    review = TextAreaField('Відгук', validators=[Optional(), Length(max=500)])
+    submit = SubmitField('Зберегти відгук')

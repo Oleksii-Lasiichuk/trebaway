@@ -705,6 +705,17 @@
             font-weight: 500;
             z-index: 2;
         }
+
+        /* Character counter styles */
+        .char-counter {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .char-counter.warning {
+            color: #e74c3c;
+        }
     </style>
 </head>
 <body>
@@ -975,7 +986,8 @@
                 
                 <div class="form-group">
                     <label for="review">Відгук (необов'язково):</label>
-                    <textarea name="review" id="review" rows="4" placeholder="Напишіть свій відгук про користувача...">{{ user_rating.review if user_rating else '' }}</textarea>
+                    <textarea name="review" id="review" rows="4" maxlength="500" placeholder="Напишіть свій відгук про користувача...">{{ user_rating.review if user_rating else '' }}</textarea>
+                    <div class="char-counter"><span id="char-count">500</span> символів залишилось</div>
                 </div>
                 
                 <button type="submit" class="submit-rating-btn">Зберегти оцінку</button>
@@ -1068,6 +1080,38 @@
                     behavior: "smooth"
                 });
             });
+
+            // Add character counter functionality for review textarea
+            const reviewTextarea = document.getElementById('review');
+            const charCount = document.getElementById('char-count');
+            const MAX_CHARS = 500;
+            
+            if (reviewTextarea && charCount) {
+                function updateCharCount() {
+                    const remaining = MAX_CHARS - reviewTextarea.value.length;
+                    charCount.textContent = remaining;
+                    
+                    if (remaining < 50) {
+                        charCount.parentElement.classList.add('warning');
+                    } else {
+                        charCount.parentElement.classList.remove('warning');
+                    }
+                }
+                
+                // Initialize counter
+                updateCharCount();
+                
+                // Add event listeners
+                reviewTextarea.addEventListener('input', function() {
+                    updateCharCount();
+                    
+                    // Enforce the limit
+                    if (this.value.length > MAX_CHARS) {
+                        this.value = this.value.substring(0, MAX_CHARS);
+                        updateCharCount();
+                    }
+                });
+            }
         });
     </script>
 </body>

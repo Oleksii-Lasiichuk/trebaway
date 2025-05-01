@@ -283,10 +283,15 @@ def user_profile(username):
 @main.route('/rate_user/<int:user_id>', methods=['POST'])
 @login_required
 def rate_user(user_id):
-    rating = request.form.get('rating', type=int)
+    # Get the form data
+    rating = request.form.get('rating')
     review = request.form.get('review', '')
     
-    if not rating or rating < 1 or rating > 5:
+    # Strictly enforce the review length limit
+    if len(review) > 500:
+        review = review[:500]  # Trim to maximum 500 characters
+    
+    if not rating or int(rating) < 1 or int(rating) > 5:
         return redirect(request.referrer or url_for('main.index'))
     
     if current_user.id == user_id:
@@ -300,14 +305,14 @@ def rate_user(user_id):
     ).first()
     
     if existing_rating:
-        existing_rating.rating = rating
+        existing_rating.rating = int(rating)
         existing_rating.review = review
         existing_rating.date_created = datetime.utcnow()
     else:
         new_rating = Rating(
             rater_id=current_user.id,
             rated_user_id=user_id,
-            rating=rating,
+            rating=int(rating),
             review=review
         )
         db.session.add(new_rating)
